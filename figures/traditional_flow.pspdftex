@@ -1,0 +1,41 @@
+\begin{picture}(0,0)%
+\includegraphics{traditional_flow_pspdftex}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(6583,1959)(889,-6328)
+\put(5266,-4966){\makebox(0,0)[b]{\smash{{\SetFigFont{9}{10.8}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Transition }%
+}}}}
+\put(5266,-4786){\makebox(0,0)[b]{\smash{{\SetFigFont{9}{10.8}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Unwind}%
+}}}}
+\put(5266,-5101){\makebox(0,0)[b]{\smash{{\SetFigFont{9}{10.8}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}System}%
+}}}}
+\put(4636,-5866){\makebox(0,0)[b]{\smash{{\SetFigFont{9}{10.8}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}SSA}%
+}}}}
+\put(3646,-5776){\makebox(0,0)[b]{\smash{{\SetFigFont{9}{10.8}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Unwind }%
+}}}}
+\put(3646,-5956){\makebox(0,0)[b]{\smash{{\SetFigFont{9}{10.8}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}loops}%
+}}}}
+\put(1441,-5776){\makebox(0,0)[b]{\smash{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}C}%
+}}}}
+\put(1441,-5956){\makebox(0,0)[b]{\smash{{\SetFigFont{9}{10.8}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}(Firmware)}%
+}}}}
+\put(1441,-4876){\makebox(0,0)[b]{\smash{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Verilog}%
+}}}}
+\put(1441,-5056){\makebox(0,0)[b]{\smash{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}(HW)}%
+}}}}
+\put(2566,-5866){\makebox(0,0)[b]{\smash{{\SetFigFont{9}{10.8}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}CFG}%
+}}}}
+\put(2566,-5056){\makebox(0,0)[b]{\smash{{\SetFigFont{9}{10.8}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}  System}%
+}}}}
+\put(2566,-4876){\makebox(0,0)[b]{\smash{{\SetFigFont{9}{10.8}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Transition}%
+}}}}
+\put(4051,-4651){\makebox(0,0)[b]{\smash{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}Bit-level Netlist}%
+}}}}
+\end{picture}%

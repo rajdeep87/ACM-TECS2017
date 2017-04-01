@@ -1,0 +1,188 @@
+\subsection{Path-based Symbolic Execution}
+We have developed a symbolic execution tool, \verifox, 
+for FW-HW co-verification of IP level and SoC level designs. 
+Given a program netlist model, $\mathcal{PN}$, a scenario, 
+$\mathcal{S}$, and a property expressed as $\mathit{assert}(c)$ 
+(where $c$ is a condition stated in terms of variables in $\mathcal{PN}$)
+as input, \verifox performs path-based exploration of $\mathcal{PN}$ 
+to automatically infer {\em scencario/transaction} pairs and check their validity 
+using backend solvers. If the condition $c$ does not hold, 
+then $\mathcal{PN}$ is said to have violated the property. 
+
+
+\Omit{
+explores only those FW-HW interactions
+that are relevant to $\mathcal{S}$. \verifox 
+
+\verifox takes a C program as an input, where 
+the properties of interest are specified using 
+statements in the code. Here, $c$ is a condition 
+stated in terms of program variables that we 
+want to hold at the point where the assertion occurs. 
+}
+
+\Omit{
+ that performs 
+path-based exploration of a unified FW-HW model, 
+$\mathcal{PN}$ to automatically check the validity of the 
+relevant {\em scencario/transaction} pairs of the FW-HW interactions.
+}
+\Omit {
+\verifox performs depth-first exploration 
+of program paths with aggressive pruning strategy  
+with certain optimizations
+that makes it suitable for verifying hardware designs. 
+A hardware circuit having its 
+behaviour specified in a manner similar to state machine, would usually
+be translated into a program that has a large number of control-flow paths with
+only tiny fractions of them being feasible. 
+}
+A typical path-based symbolic execution engine might explore 
+a path until it come to an $\mathit{assert}(c)$ statement.
+This whole path can then be posed as a query to a SAT solver to see if the 
+assertion is violated at that point. If the path is infeasible, the assertion
+holds trivially. If a large number of paths are infeasible, symbolic 
+execution may waste time exploring them. \verifox employs 
+an eager infeasibility check to prune infeasible paths, 
+as well as incremental encoding that makes
+it easier for the underlying SAT solver. 
+\begin{algorithm2e}[t]
+\DontPrintSemicolon
+\SetKwFunction{symex}{Symex}
+%\SetKwFunction{assert}{assert}
+\SetKwFunction{put}{put}
+\SetKwFunction{get}{get}
+\SetKwFunction{print}{print}
+\SetKwFunction{return}{return}
+%\SetKwFunction{assume}{assume}
+%\SetKwFunction{isf}{isFeasible}
+\SetKwData{safe}{Safe}
+\SetKwData{unsafe}{Unsafe}
+\SetKwInOut{Input}{input}
+\SetKwInOut{Output}{output}
+\SetKw{KwNot}{not}
+\begin{small}
+\Input{Program Netlist $\mathcal{PN}$ with properties specified with $assert(c)$, scenario specified with $assume(c)$}
+\Output{The status (\safe or \unsafe) and a counterexample if \unsafe}
+\tcc{The initial state}
+$S_0 \leftarrow I(x)$ \nllabel{algline:init}\;
+$stmt \leftarrow $ first statement \;
+$worklist.put(\tuple{S_0,stmt})$ \;
+\While{\KwNot $worklist.empty()$}
+{
+	$\tuple{S,stmt} \leftarrow worklist.get()$ \;
+	\uIf{$stmt$ is an $assume(c)$ \nllabel{algline:assume}}
+           {
+			$stmt \leftarrow $ statement after $assume(c)$ \;
+			\lIf{$isFeasible(S\wedge c)$}{$worklist.put(\tuple{S\wedge c,stmt})$}
+              
+       		}
+	\uElseIf{$stmt$ is a branch with condition $c$ \nllabel{algline:branch}}
+	{
+		$stmt_f \leftarrow$ first statement after $stmt$ if branch is not taken\;
+		$stmt_t \leftarrow$ first statement after $stmt$ if branch is taken \;
+		\lIf{$isFeasible(S\wedge c)$}{$worklist.put(\tuple{S\wedge c,stmt_t})$}
+		\lIf{$isFeasible(S\wedge \neg c)$}{$worklist.put(\tuple{S\wedge \neg c,stmt_f})$}
+		
+	}
+	\uElseIf{$stmt$ is an $assert(c)$ \nllabel{algline:assert}}
+	{
+		$stmt \leftarrow $ statement after $assert(c)$ \;
+		\If{$isFeasible(S \wedge \neg c)$}{
+		\print \unsafe \;
+		\return Counterexample}
+		\lElse{ $worklist.put(\tuple{S \wedge c,stmt})$}
+	}
+	\Else
+	{
+		$S \leftarrow symex(S,stmt)$\; \nllabel{algline:symex}
+		$stmt \leftarrow $ the next statement in control flow after $stmt$ \;
+		\lIf{$stmt \neq \bot$ \nllabel{algline:nullstmt}} {$worklist.put(\tuple{S,stmt})$} \;
+		
+	}
+	\return \safe \;
+}
+\end{small}
+\caption{Working of \textsc{verifox}\label{Alg:verifox}}
+\end{algorithm2e}
+
+\Omit{
+, in which every time a branch or an assumption
+is encountered, a feasibility check is made to prune away infeasible 
+paths as early as possible. }
+\vspace{-4mm}
+\algref{verifox} shows the overall algorithm of \verifox. States mentioned
+in the algorithm are all symbolic states, which are quantifier-free predicates characterizing
+a set of program states. 
+Symbolic execution starts with an initial symbolic state $I(x)$, is a quantifier-free predicate
+over program variables $x$, and the first statement $\mathit{stmt}$ to be executed.  Note that we assume all program variables
+have finite bit-width and thus can be represented as bit-vectors.
+Every statement acts as a state transformer during the symbolic execution. $\mathit{worklist}$ 
+maintains the set of symbolic states, along with the corresponding
+$\mathit{stmt}$ that should execute next. Assumptions can be specified in the program 
+using $\mathit{assume}(c)$ statements, where $c$ is the condition expressed in terms 
+of program variables. Assumptions restrict the search to only those
+states for which the condition $c$ holds at the program point where $\mathit{assume}(c)$ is encountered.
+For example, suppose $(x!=0)$ characterizes the set of states that has been discovered to be
+reachable so far by a verification tool. Here, $x$ is a program variable.
+Upon encountering $\mathit{assume}(x>0)$, the 
+set of states reachable at the point of assumption is shrunk to only those that
+satisfy $(x>0)$. A user can specify assumptions to restrict
+the verification to only certain regions of the program's state space.
+
+\verifox performs a feasibility check at an $\mathit{assume}$ statement 
+or a branch \algtwolines{algline:assume}{algline:branch} to ensure that
+only feasible symbolic states are kept in the $\mathit{worklist}$. This ensures that the
+infeasibility is detected as early as possible. 
+If an assertion is violated, then a counterexample is detected and \algref{verifox}
+terminates \algline{algline:assert}. In all other cases, $\mathit{symex}(S,\mathit{stmt})$ performs
+one step of symbolic execution by executing $\mathit{stmt}$ from the symbolic state $S$ \algline{algline:symex}.
+If no further statement remains to be executed along the path that is being explored,
+then $\mathit{stmt}$ is assigned the value $\bot$. The symbolic state is put in the worklist only 
+if there are further statements remaining \algline{algline:nullstmt}.
+
+The feasibility checks shown as $\mathit{isFeasible}$ pose a query to the underlying SAT solver.
+Note that \algref{verifox} does not refer to how the methods $\mathit{worklist.put}$ and $\mathit{worklist.get}$
+work. In principle, one can use any search heuristic to select which symbolic state to explore 
+further from the $\mathit{worklist}$. In the current version \verifox employs a depth first strategy of exploration.
+
+Apart from the eager infeasibility check, another crucial optimization is the
+use of incremental SAT solving during the symbolic execution. 
+%\verifox can use incremental SAT-solving capabilities in two ways.
+During the symbolic execution, only one solver instance is maintained 
+while going down
+a single path. Thus, when making a feasibility
+check from one branch $b_1$ to another branch $b_2$ along a single path, only the program
+segment from $b_1$ to $b_2$ is encoded as a constraint and added to the existing solver
+instance. 
+\Omit{
+Internal solver states and the information that it gathers during the search
+remains valid as long as all the queries that are posed to the solver in succession are
+monotonically stronger. If the solver solves a formula $\phi$, posing $\phi \wedge \psi$ as 
+a query to the same solver instance allows one to reuse the solver knowledge that
+it has acquired in the previous query, because any assignment that falsifies $\phi$ also
+falsifies $\phi \wedge \psi$. Thus the solver need not revisit the assignments that it has already
+ruled out.}
+This results in speeding up the process of feasibility check of the symbolic state at $b_2$ as
+the feasibility check at $b_1$ was $\mathit{true}$. A new
+solver instance is used to explore a different path, after the current path is detected as infeasible.
+
+\Omit{
+In the full incremental mode, only one solver instance is maintained throughout the whole
+ symbolic execution. Let $\phi_{b_1b_2}$ denote the encoding of the path fragment
+from $b_1$ to $b_2$. It is added in the solver as $(B_{b_1b_2} \implies \phi_{b_1b_2})$.
+Then, $B_{b_1b_2}$ is added as a \textit{blocking variable}, which is also usually known as {\em solver assumption}.\footnote{The SAT community uses the term \textit{assumption variables} or \textit{assumptions}, but we will use the term blocking variable to avoid ambiguity with assumptions in the program.} to enforce constraints specified by $\phi_{b_1b_2}$. Blocking variables are treated specially inside the solvers: unlike regular variables or clauses, the blocking can be removed in subsequent queries without invalidating the solver instance.
+When one wants to back-track the symbolic execution, the blocking $B_{b_1b_2}$ is removed 
+and a unit clause $\neg B_{b_1b_2}$ is added to the solver, thus effectively removing $\phi_{b_1b_2}$.
+}
+
+Eager infeasibility check restrict the search to explore
+only those FW/HW interations which are feasible under a
+given scenario.
+%Eager infeasibility check may save the engine from exploring multiple paths
+%that emerge through branches encountered after the first point of infeasibility.
+In our experiments, we find this optimization has a large effect on runtimes.
+Though \verifox poses many queries to the SAT solver, each query is relatively simple due to
+two reasons: the resultant formula encodes only a single path, 
+and exploration along a path only needs to encode and solve for the path segment (along with the existing
+constraints) from the last point of query.

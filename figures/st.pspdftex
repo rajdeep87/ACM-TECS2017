@@ -1,0 +1,85 @@
+\begin{picture}(0,0)%
+\includegraphics{st_pspdftex}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(6845,4471)(-1319,-3065)
+\put(4771,614){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{!irq\_o}$}%
+}}}}
+\put(4276,794){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_1$}%
+}}}}
+\put(5266,209){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_3$}%
+}}}}
+\put(3331,-556){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_4$}%
+}}}}
+\put(5266,-601){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_5$}%
+}}}}
+\put(2476,-1141){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_6$}%
+}}}}
+\put(4096,-1141){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_7$}%
+}}}}
+\put(5266,-1366){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_8$}%
+}}}}
+\put(2476,-1906){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_9$}%
+}}}}
+\put(3286,-2626){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_{11}$}%
+}}}}
+\put(4096,-1906){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_{10}$}%
+}}}}
+\put(3466,614){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{irq\_o}$}%
+}}}}
+\put(1801,-736){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$status==0x0c$}%
+}}}}
+\put(3691,-736){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$status!=0x04$}%
+}}}}
+\put(4366,-1456){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{data=}$}%
+}}}}
+\put(3331,209){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_2$}%
+}}}}
+\put(4231,-1636){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{inb(UART\_TR)}$}%
+}}}}
+\put(2566,-1456){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{outb(data,UART\_TR)}$}%
+}}}}
+\put(3871,-331){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{\& 0x0c}$}%
+}}}}
+\put(3376,-151){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{status=inb(UART\_IS)}$}%
+}}}}
+\put(5401,-196){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{wb\_idle()}$}%
+}}}}
+\put(5446,-1096){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{wb\_idle()}$}%
+}}}}
+\put(-1259,-826){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{outb(0x13,UART\_MC)}$}%
+}}}}
+\put(-1304,-1186){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{outb(0X00,UART\_CM2)}$}%
+}}}}
+\put(-1304,-1411){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{outb(0X00,UART\_CM1)}$}%
+}}}}
+\put(316,1199){\makebox(0,0)[lb]{\smash{{\SetFigFont{14}{16.8}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}Scenario ($\mathcal{S}$)}%
+}}}}
+\put(-1259,-1006){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{outb(0x80,UART\_CM3)}$}%
+}}}}
+\put(-1304,-1636){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{outb(0X03,UART\_IE)}$}%
+}}}}
+\put(-1304,-1861){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{outb(0X00,UART\_CR)}$}%
+}}}}
+\put(2746,1199){\makebox(0,0)[lb]{\smash{{\SetFigFont{14}{16.8}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}FW Transaction ($\mathcal{FT}$)}%
+}}}}
+\put(-134,479){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{wb\_reset()}$}%
+}}}}
+\put(-179,-196){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}$\mathbf{wb\_idle()}$}%
+}}}}
+\put(838,-493){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$r_1$}%
+}}}}
+\put(838, 92){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$r_0$}%
+}}}}
+\put(856,794){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s$}%
+}}}}
+\put(856,-2266){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$s_0$}%
+}}}}
+\end{picture}%
