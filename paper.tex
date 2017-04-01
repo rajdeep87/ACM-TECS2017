@@ -138,9 +138,10 @@ primary contribution of this paper is to develop an automated and scalable
 hardware/software co-verification methodology that detects FW-HW bugs in the 
 presence of an RTL implementation.  
 
-Note that whenever we refer to ``hardware'' from this point onwards, we mean
-an RTL implementation and not a TLM.  A firmware services the requests from
-the application software layer or its interacting hardware components. 
+A firmware only exercise some fragment of hardware state-space in a typical hardware/software co-design~\cite{dac17,taa,ibm-other}.  However, there is no automatic hardware/software co-verification tool that can exploit this interaction behavior.  For building effective and scalable formal co-verification tool, it is therefore imperative to automatically mine only relevant scenario/transaction pairs that occurs in practical co-designs.  In this paper, we attempt to bridge this gap by presenting a technique that automatically mine relevant HW/SW interaction behavior using symbolic execution.
+A firmware services the requests from
+the application software layer or its interacting hardware~\footnotesize{Note that whenever we refer to ``hardware'' from this point onwards, we mean
+an RTL implementation and not a TLM.}  components. 
 Similarly, the hardware services the requests from the firmware or the
 physical environment.  Thus, the firmware and its interacting hardware
 components can be seen as a set of services.  In this paper, we call a
@@ -150,15 +151,16 @@ by Mahajan et al.~\cite{mcbmq}.  We call a FW service a {\em Firmware
 Transaction} ($\mathcal{FT}$).  $\mathcal{FT}$ is an untimed finite-state
 machine that is manifested as control-flow paths in the FW, similar to
 transactions in TLM~\cite{codes14}.  A~{\em scenario} $(\mathcal{S})$ in a
-co-verification environment typically configures the hardware in a way that
+co-design typically configures the co-verification environment in a way that
 restricts the interaction between $\mathcal{FT}$ and $\mathcal{HT}$.  In
-other words, given a $\mathcal{S}$, the firmware only exercises a fragment
+other words, given a scenario $\mathcal{S}$, the FW only exercises a fragment
 of the HW state-space.  This renders many interactions between
-$\mathcal{HT}$ and $\mathcal{FT}$ infeasible.  A {\em Scenario/Transaction}
+$\mathcal{HT}$ and $\mathcal{FT}$ infeasible. For example, a scenario in \emph{Universal Asynchronous Receiver Transmitter} (UART) IP can configure the UART in \emph{transmitter} mode which restricts the communication between the FW and HW to set of services that only transfers data from the FW to the serial output port of the transmitter HW while completely bypassing the receiver HW.    A {\em Scenario/Transaction}
 pair is a set of valid interactions between $\mathcal{HT}$ and
-$\mathcal{FT}$ for a particular~$\mathcal{S}$.  Thus, it is necessary to
-automatically mine Scenario/Transaction pairs to scale HW/SW co-verification
-to SoC level designs.  A conventional, monolithic approach, e.g., an
+$\mathcal{FT}$ for a particular scenario~$\mathcal{S}$.  
+It is necessary to automatically mine Scenario/Transaction pairs for scalable and effective co-verification.
+
+A conventional, monolithic approach, e.g., an
 approach based on BMC~\cite{CKY03}, cannot exploit this infeasibility.  The
 key idea in this paper is to use path-based symbolic execution to
 automatically infer such Scenario/Transaction pairs and check their validity
@@ -217,6 +219,9 @@ faster than the BMC based approaches.
 %===============================================================================
 In this paper, we make the following contributions:
 \begin{enumerate}
+\item Translating Hardware/Software Co-designs to an unified 
+sequential software model, represented in C.  
+verification using Software Model Checkers.
 \item {\em Co-verification using Symbolic Execution:} 
 In this paper, we introduce a notion of {\em transaction} 
 in HW RTL and FW models. We present a unified FW-HW model, 
