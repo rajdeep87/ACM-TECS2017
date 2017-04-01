@@ -1,4 +1,4 @@
-\documentclass[format=acmsmall, review=false, screen=true]{acmart}
+\documentclass[sigconf]{acmart}
 
 \usepackage{booktabs} % For formal tables
 
@@ -70,13 +70,7 @@
 \input{symbols}
 \input{refs}
 
-\begin{document}
-
 \title{Mining Scenario/Transaction Pairs HW/SW Co-verification Using Symbolic Execution}
-
-\maketitle
-
-%
 %===============================================================================
 \begin{abstract}
 %===============================================================================
@@ -95,6 +89,15 @@ approach for proving safety properties as well as detecting firmware/hardware bu
 %
 \end{abstract}            
 
+\begin{document}
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+\pagestyle{plain} % removes running headers
+\setcopyright{none}
+
+\maketitle
+
+%
 %===============================================================================
 \section{Introduction}
 %===============================================================================
