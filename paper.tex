@@ -101,6 +101,9 @@ approach for proving safety properties as well as detecting firmware/hardware bu
 %===============================================================================
 \section{Introduction}
 %===============================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %                    Pre-RTL versus Post-RTL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Hardware/software co-verification is broadly performed at two different
 phases in the design cycle: pre-RTL and post-RTL.  In the pre-RTL phase,
 engineers write high-level software (SW) models for Intellectual Property (IP), 
@@ -121,35 +124,82 @@ co-verification becomes more complex.  Unlike the TLM, which only captures
 limited design functionality, the RTL implements cycle-accurate behavior
 of the final HW, and addresses concerns related to power, area and
 timing.  Verification is mandatory to assert that the driver or firmware (FW) 
-is executed correctly together with the RTL.  However, the verification of
-FW given in C/C++ together with the RTL given in a hardware
-description language (HDL) such as Verilog/VHDL is a challenging task due to
-the timing and semantic mismatch between the two models -- for example,
+is executed correctly together with the RTL.  The effectiveness of testing 
+is thus severely limited in post-RTL co-verification.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %                    Challenges in Co-verification 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+However, the verification of FW given in C/C++ together with the RTL given in a hardware
+description language (HDL) such as Verilog/VHDL is a challenging task due to 
+few reasons -- 1) the timing and semantic mismatch between the synchronous
+clock-driven HW model and asynchronous event-driven SW model -- for example,
 FW running on a processor could be much faster than the HW
-model it interacts with.  The effectiveness of testing is
-thus severely limited in post-RTL co-verification.
+model it interacts with, 2) lack of co-specification model that precisely
+captures the design intent of the interaction behavior, 3) lack of automated
+formal tools that support co-designs that are mostly implemented in C and 
+Verilog/VHDL.   In this paper, we address some of these issues to facilitate 
+wider adoption of formal techniques in hardware/software co-verification.   
 
-Common practice in industry for system-level co-verification is to 
-either use emulators/accelerators or Instruction Set Simulators (ISS). 
-However, no rigorous formal verification effort is
-performed at the post-RTL phase to ensure the validity of the
-FW-HW interactions~\cite{vlsid13}.  With this aim in mind, the
-primary contribution of this paper is to develop an automated and scalable
-hardware/software co-verification methodology that detects FW-HW bugs in the 
-presence of an RTL implementation.  
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %                     Handling Semantic Gap  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Generating a unified FW-HW model~\cite{fmsd02,emsoft07,fase10} for 
+co-verification is a well-known phenomenon to handle the semantic mismatch 
+between the HW~\footnote{Note that whenever we refer to ``hardware'' from this point onwards, we mean an RTL implementation 
+and not a TLM.}  and FW models.  Most of the existing techniques are not 
+useful in practise for three reasons -- 1) use of abstract HW models 
+instead of register-transfer level implementation, 2) the HW-FW model
+construction is agnostic to the underlying reasoning engine, 3) does not
+leverage the co-specification model, hence ineffective for practical
+co-verification.  We will call the unified FW-HW model as \emph{co-verification model}.  
+
+
+In this paper, we present two different approaches for automatic formal
+verification of HW/SW co-designs -- \emph{monolithic} and \emph{path-based}.  
+We embody these techniques in our tools, \hwcbmcv and \verifox, respectively. 
+A desirable characteristic of a co-verification model is the ability to exploit 
+the expressivity of the underlying reasoning engines, for example, constructing 
+a bit-level co-verification model for SAT solvers or a word-level model for SMT 
+solvers.  \hwcbmcv constructs a co-verification model through 
+in tandem symbolic execution of the HW and SW models.  To this end, a bit-level 
+netlist (typically represented as And Inverter Graph) or word-level netlist 
+(represented in tool specific format) is synthesized from a HW Register Transfer 
+Level (RTL) implementation. Similarly, the SW, given in C, is automatically 
+translated into a Static Single Assignment (SSA) form.  A monolithic verification 
+condition is generated from these two models which is then solved using a 
+satisfiability solver.  Whereas, a co-verification model in \verifox is constructed 
+by first translating the RTL description into a software representation in C followed 
+by sequentializing the hardware and firmware models.  This results in a single
+threaded sequential co-verification model which is represented in C. A path-wise 
+symbolic execution is then performed over the co-verification model to
+effectively mine only relevant interaction behaviors between the SW and HW
+models.   
+
+%A key to building an effective co-verification tool is to translate the HW
+%and SW models to a common formal semantics called, 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %                     Co-specification Model  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+A co-verification models must leverage the specification of system-level 
+properties across HW/SW boundaries for uncovering critical co-design bugs 
+and for effective co-verification.  Our co-specification models are 
+specified in C with the support of special primitive, called {\em next\_timeframe()}, 
+that can express temporal correlation between HW and FW events. Our
+co-verification models in \hwcbmcv and \verifox can be easily verified against 
+these co-specification models. The co-design properties expressed by 
+co-specification models are sufficiently expressive, amenable to 
+verification reuse and can be readily used in assertion-based verification.  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %       Scenario, Transaction and Scenario/Transaction Pair
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 A firmware only exercise some fragment of hardware state-space in a typical 
-hardware/software co-design~\cite{dac17,taa,ibm-other}.  However, there is no 
-automatic hardware/software co-verification tool that can exploit this interaction 
-behavior.  For building effective and scalable formal co-verification tool, it is 
-therefore imperative to automatically mine only relevant scenario/transaction pairs 
-that occurs in practical co-designs.  In this paper, we attempt to bridge this gap by 
-presenting a technique that automatically mine relevant HW/SW interaction behavior 
-using symbolic execution.  A firmware services the requests from
-the application software layer or its interacting hardware~\footnote{Note that whenever 
-we refer to ``hardware'' from this point onwards, we mean an RTL implementation 
-and not a TLM.}  components. 
-Similarly, the hardware services the requests from the firmware or the
+hardware/software co-design~\cite{dac17,taa,ibm-other}.  
+A firmware services the requests from the application software 
+layer or its interacting hardware.  Similarly, the hardware services 
+the requests from the firmware or the
 physical environment.  Thus, the firmware and its interacting hardware
 components can be seen as a set of services.  In this paper, we call a
 hardware RTL service a {\em Hardware Transaction} $(\mathcal{HT})$.  Closest
@@ -162,23 +212,32 @@ co-design typically configures the co-verification environment in a way that
 restricts the interaction between $\mathcal{FT}$ and $\mathcal{HT}$.  In
 other words, given a scenario $\mathcal{S}$, the FW only exercises a fragment
 of the HW state-space.  This renders many interactions between
-$\mathcal{HT}$ and $\mathcal{FT}$ infeasible. For example, a scenario in \emph{Universal Asynchronous Receiver Transmitter} (UART) IP can configure the UART in \emph{transmitter} mode which restricts the communication between the FW and HW to set of services that only transfers data from the FW to the serial output port of the transmitter HW while completely bypassing the receiver HW.    A {\em Scenario/Transaction}
-pair is a set of valid interactions between $\mathcal{HT}$ and
-$\mathcal{FT}$ for a particular scenario~$\mathcal{S}$.  
-It is necessary to automatically mine Scenario/Transaction pairs for scalable and effective co-verification.
+$\mathcal{HT}$ and $\mathcal{FT}$ infeasible. For example, a scenario in 
+\emph{Universal Asynchronous Receiver Transmitter} (UART) IP can configure the 
+UART in \emph{transmitter} mode which restricts the communication between the FW 
+and HW to set of services that only transfers data from the FW to the serial output 
+port of the transmitter HW while completely bypassing the receiver HW.  
+A {\em Scenario/Transaction} pair is a set of valid interactions between 
+$\mathcal{HT}$ and $\mathcal{FT}$ for a particular scenario~$\mathcal{S}$.  
+It is necessary to automatically mine Scenario/Transaction pairs for scalable 
+and effective co-verification.
 
-A conventional, monolithic approach, e.g., an
-approach based on BMC~\cite{CKY03}, cannot exploit this infeasibility.  The
-key idea in this paper is to use path-based symbolic execution to
-automatically infer such Scenario/Transaction pairs and check their validity
-using backend solvers.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %        Difference between Monolithic and Path-wise Approach
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+A monolithic approach in \hwcbmcv based on Bounded Model Checking~\cite{CKY03}, 
+cannot exploit this infeasibility.  Whereas, a path-based symbolic execution in 
+\verifox can automatically infer such Scenario/Transaction pairs and check their 
+validity using backend solvers.  For building effective and scalable formal 
+co-verification tool, it is therefore imperative to automatically mine only 
+relevant scenario/transaction pairs that occurs in practical co-designs. 
 
 \Omit{
 A system is comprised of a set of concurrent FW and HW transactions which
 interleaves asynchronously. It is well recognized that concurrency is at
 the heart of co-verification. The number of interleavings between the FW
 and HW threads can be large, which can become a bottleneck in the
-verification process. }
+verification process. 
 
 The concurrency between the HW and SW components is a key challenge in
 co-verification.  In this paper, we exploit specific interaction patterns
@@ -188,38 +247,7 @@ the master module (producer) solely updates the shared registers which are
 consumed by the slave (consumer).  This key observation allows us to
 sequentialize a concurrent FW-HW model following specific interaction
 patterns.
-
-Generating a unified FW-HW model for co-verification is a well-known 
-technique. Notably, Kurshan et al.~modeled HW and 
-SW using finite state machines~\cite{fmsd02}, Monniaux in~\cite{emsoft07} modeled
-HW and SW as C programs which are formally pushdown systems (PDS), 
-Li et al.~in~\cite{fase10} used Buchi Automata to abstractly
-model a hardware and PDS to abstractly model a software to generate a unified SW-HW model, 
-called Buchi Pushdown System ({\em BPDS}). In this paper, we propose an 
-orthogonal approach for co-verification.  
-The HW RTL model in Verilog is automatically synthesized to a 
-word-level cycle-accurate representation, called, 
-{\em software netlist} $(\mathcal{SN})$, in ANSI-C~\cite{mtk2016}. 
-The FW model is then instrumented with the call to the 
-top level procedure of $\mathcal{SN}$ following specific FW-HW interaction 
-patterns. Note that the top level procedure in $\mathcal{SN}$
-is the same as the top level module in HW, since the 
-synthesis step from RTL to $\mathcal{SN}$ preserves the 
-RTL module hierarchy. This results in a unified single-threaded software model, 
-that contains both FW and $\mathcal{SN}$ 
-(synthesized hardware RTL). We call this 
-unified FW-HW model, a {\em program netlist} (${\mathcal{PN}}$). 
-This representation enables us to apply
-broad range of verification techniques which have 
-been less commonly explored in formal hardware/software 
-co-verification based on netlists. In particular, we 
-apply path-based symbolic execution and bounded model checking (BMC). 
-In this paper, we present a path-based symbolic execution tool, 
-\verifox, to uncover FW-HW design bugs in ${\mathcal{PN}}$. 
-We compare our tool with the state-of-the-art BMC based 
-co-verification tool, \hwcbmcv. Our experimental results show 
-that path-based symbolic execution is order of magnitude 
-faster than the BMC based approaches. 
+}
 
 %===============================================================================
 %\subsection{Contributions}
@@ -257,60 +285,52 @@ here~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a
      for co-verification of industrial strength co-designs. 
     
 \end{enumerate}
+%
+%===============================================================================
+\section{Working Example}
+%{\bf Running example: }
+%===============================================================================
+In this section, we present an working example of FW and HW model to explain our 
+co-verification methodologies.  
 
-\section{Scenarios and Transaction}
-%\section{Preliminaries}
-In this section, we start by presenting a running example of FW, followed
-by some definitions and notations.\\    
-%===============================================================================
-\subsection{Running Example}
-{\bf Running example: }
-%===============================================================================
-Figure~\ref{firmware} gives a fragment of a FW model for a Universal 
+\textbf{Firmware Model} Figure~\ref{firmware} gives a fragment of a FW model for a Universal 
 Asynchronous Transmitter/ Receiver (UART) IP.  The
 $wb$ class of functions communicate with the {\em wishbone} bus interface to
 set/reset the UART input ports and read/write data through the bus
 interface.  The FW implements Linux style inb() and outb() functions which
-invokes the $wb$ functions to communicate with the UART.  Due to space
-limitation, we could not accommodate all $wb$ functions.  The FW begins by
-resetting the UART IP which is followed by a $wb\_idle()$ function.  The 
+invokes the $wb$ functions to communicate with the UART.  The FW begins 
+by resetting the UART IP which is followed by a $wb\_idle()$ function.  The 
 FW then configures the UART in {\em loopback} mode using $outb$ function calls. 
 Inside the loop, the firmware checks for a {\em transmitter} or {\em
 receiver} interrupt by reading the Interrupt Status register $(UART\_IS)$. 
 Depending on the type of interrupt, the firmware either receives a data packet 
-or sends a data packet over the serial output. We verify that the transmitted 
-data is the same as the received data in the {\em loopback} mode using an 
-assertion in the firmware model. Note that $set\_inputs()$ and
+or sends a data packet over the serial output. 
+
+\rmcmt{The $set\_inputs()$ and
 $next\_timeframe()$ functions, used in $wb$ functions, are 
 primitives in \textsc{HW-CBMC} that direct the tool to set the 
-inputs to the HW signals and advance the HW clock, respectively. 
+inputs to the HW signals and advance the HW clock, respectively.}
 
-\Omit{
-The $set\_inputs()$ and the $next\_timeframe()$ functions are primitives
-in \textsc{HW-CBMC} that direct the tool to set the inputs to the HW
-signals and advance the HW clock, respectively.  Recall that $\mathcal{SN}$
-is the synthesized word-level representation of HW RTL. In the unified
-FW-HW model, $\mathcal{PN}$, these primitives are implemented by invoking
-the top level module of $\mathcal{SN}$ which is the top module of the UART
-RTL IP core.
-}
+\textbf{Hardware Model} Figure~\ref{fig:interleaving2} shows a fragment of the state machine 
+implementation of the UART hardware RTL.  The UART IP contains a
+\emph{transmitter} module, a \emph{receiver} module and a \emph{clock
+generator}.  The update of state elements (\emph{registers}) and 
+\emph{wires} are shown in rectangular boxes and rounded boxes respectively.  
 
-\Omit{ 
-In Figure~\ref{firmware}, the firmware executes scenario, $\mathcal{S}$, 
-to configure the UART IP in {\em loopback} mode. A property $\psi$ can be as follows: \\
-{\em If the content of memory mapped registers (mode configuration and interrupt 
-enable) is, $UART\_MC = 0x13$ and $UART\_IE = 0x03$,  then the serial output of 
-the transmitter, $UART\_TX$, should not be in high-impedance $(Z)$ state and 
-the transmitter buffer must not be EMPTY.}  \\
-Note that the antecedent of the property (configuring the UART in 
-loopback with interrupt enabled) defines a scenario and the 
-consequent defines the condition on the HW transaction. 
-In this example, $\mathcal{T}$ \sjcmt{Where did
-$\mathcal{T}$ come from?} is a finite-duration service 
-through the UART state machine, $(UART\_TX and UART\_RX)$, that 
-is spread over multiple clock cycles. 
-}
-
+\textbf{Co-specification Model} We verify that the transmitted data is the same as the 
+received data in the {\em loopback} mode.  To do so, we annotate the FW model 
+with an assertion $assert()$, as shown in Figure~\ref{firmware}.  Note that the 
+array containers $rx\_b$ and $tx\_b$ stores the data obtained through the $inb$
+and $outb$ function calls which directly reads and writes the UART IP ports
+respectively. 
+\[
+  for(i=0; i<=N; i++) 
+   \quad assert(rx\_b[i] == tx\_b[i]);
+\]
+%
+We formally describe the notion of \emph{transaction} and \emph{scenario} with the
+help of our working example. \\
+%
 \begin{figure}[t]
 \scriptsize
 \begin{tabular}{l|l}
@@ -402,7 +422,7 @@ for(i=0; i<=10; i++)
 \textbf{Scenario ($\mathcal{S}$):}
 Let $B$ denote a set of all possible behaviors of a system. A scenario is a set of 
 constraints $\mathcal{S}$ that restrict the system behaviors
-to $B' \subseteq B$. For example, the left hand side of Figure~\ref{fig:st}. 
+to $B' \subseteq B$. For example, the left hand side of Figure~\ref{fig:st} 
 gives an example scenario for the UART FW shown in Figure~\ref{firmware}. 
 Here, $\mathcal{S}$ configure the UART IP in {\em loopback} mode with 
 interrupt enabled.
@@ -480,7 +500,8 @@ enables a transaction step.  This process continues until $\mathcal{HT}$
 reaches \textit{comp} state.  Note that $\mathcal{FT}$ can update some state
 elements of $\mathcal{HT}$ during its write action, based on which
 predicates in $\Delta_{\varphi}$ may be computed. 
-Figure~\ref{fig:interleaving2} gives a fragment of $\mathcal{HT}$
+
+Figure~\ref{fig:interleaving2} shows a fragment of $\mathcal{HT}$
 corresponding to the top module of UART IP.  Let us consider a possible
 execution of $\mathcal{HT}$, $(init \rightarrow t_1 \rightarrow t_4
 \rightarrow t_6 \rightarrow comp)$.  At $init$, the FW sets the HW input
@@ -499,14 +520,14 @@ Note that the dotted edges in $\mathcal{HT}$ denotes that eventually the
 execution reaches $comp$.  The update of state elements are shown in
 rectangular boxes, whereas the evaluation of boolean predicates are shown
 inside the rounded boxes.  The blue arrows point to the state updates or
-predicate evaluation at a particular~$\varphi$.
-
+predicate evaluation at a particular~$\varphi$. \\
+%
 \begin{figure}[t]
 \scalebox{.55}{\import{figures/}{fw-hw-interleaving.pspdftex}}
 \caption{Some HW Transactions for UART
 \label{fig:interleaving2}}
 \end{figure}
-
+%
 \textbf{Scenario/Transaction Pairs}
 %
 A scenario, $\mathcal{S}$, restricts the interaction between $\mathcal{HT}$
@@ -526,7 +547,7 @@ configures a UART in {\em loopback} mode, then the interaction between
 $\mathcal{FT}$ and $\mathcal{HT}$ must contain transactions in {\em
 transmitter} as well as {\em receiver} module.
 
-This constrained interactions can be exploited 
+\rmcmt{This constrained interactions can be exploited 
 to decompose the verification state-space. 
 This requires an automatic technique for scenario driven 
 partitioning of the FW-HW transactions to generate only 
@@ -536,7 +557,7 @@ FW-HW model in FSM or BPDS that restrict such decomposition.
 In this paper, we built a unified FW-HW model in C program 
 which enable us to automatically generate such {\em scenario/transaction} 
 pairs using path-based symbolic execution techniques. The details 
-of our technique are explained in the next section.
+of our technique are explained in the next section.}
 %
 \Omit{
 \textbf{Problem Statement}
@@ -546,6 +567,11 @@ scenarios in the combined FW-HW model.
 }
 %
 \section{Proposed Methodology}
+
+\subsection{Monolithic Co-verification Approach}
+
+\subsection{Path-based Co-verification Approach}
+%
 Figure~\ref{proposed-flow} describes our overall tool framework. In the
 subsequent section, we describe each step in details. 
 
@@ -701,7 +727,7 @@ sequential unified {\em program netlist} model which is defined next.\\ \\
 \label{fig:interleaving1}}
 \end{figure}
 %
-{\bf Unified FW-HW model:}
+{\bf Unified Co-verification model:}
 A {\em program netlist} $\mathcal{PN}$ is a sequential unified
 model of FW and HW. $\mathcal{PN}$ is formally defined as follows.
 \[ 
@@ -1161,6 +1187,14 @@ of HW design granularity -- micro-architecture~\cite{mcbmq},
 architecture~\cite{mcbmq}, TLM~\cite{tlm-book,hvc}. In this paper, 
 we introduce a notion of transaction in RTL and FW models.      
 
+Generating a unified FW-HW model for co-verification is a well-known 
+technique. Notably, Kurshan et al.~modeled HW and 
+SW using finite state machines~\cite{fmsd02}, Monniaux in~\cite{emsoft07} modeled
+HW and SW as C programs which are formally pushdown systems (PDS), 
+Li et al.~in~\cite{fase10} used Buchi Automata to abstractly
+model a hardware and PDS to abstractly model a software to generate a unified SW-HW model, 
+called Buchi Pushdown System ({\em BPDS}).  
+
 A system is comprised of a set of concurrent FW and HW models, which
 interleave asynchronously.  However, we observe a specific interaction
 pattern, which resembles a producer-consumer relationship.  We conjecture
@@ -1170,13 +1204,19 @@ al.~in~\cite{hvc} showed that these patterns are meaningful in further
 settings -- a Linux device driver interacting with x86 QEMU emulator code or
 a Rockbox firmware interacting with an iAudio X5 device.
 
+Common practice in industry for system-level co-verification is to 
+either use emulators/accelerators or Instruction Set Simulators 
+(ISS)~\cite{coverif-book}.  However, no rigorous formal verification 
+effort is performed at the post-RTL phase to ensure the validity of the
+FW-HW interactions.  
+
 The concept of symbolic execution~\cite{DBLP:journals/tse/Clarke76,
 DBLP:conf/pldi/GodefroidKS05, DBLP:conf/osdi/CadarDE08} is prevalent in the
 software domain for automated test generation as well as bug finding.  This
 technique is different from the symbolic simulation techniques that are used
-in the hardware domain.  In this paper, a unified program netlist
-representation (in C) for FW-HW models enables us to apply symbolic
-execution for scalable HW/SW co-verification.
+in the hardware domain.  In this paper, we apply path-wise symbolic execution
+to mine relevant scenario/transaction pairs for effective co-verification of 
+a unified co-verification model.  
 
 %===============================================================================
 \section{Concluding Remarks}
