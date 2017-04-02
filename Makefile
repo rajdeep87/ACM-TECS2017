@@ -1,5 +1,5 @@
 TARGET=paper
-BIB=biblio1.bib
+BIB=biblio.bib
 
 all: clean ${TARGET}.pdf
 
