@@ -323,7 +323,7 @@ generator}.  The update of state elements (\emph{registers}) and
 received data in the {\em loopback} mode.  To do so, we annotate the FW model 
 with an assertion $assert()$, as shown in Figure~\ref{firmware}.  Note that the 
 array containers $rx\_b$ and $tx\_b$ stores the data obtained through the $inb$
-and $outb$ function calls which directly reads and writes the UART IP ports
+and $outb$ function calls which directly read from and write to the UART IP ports
 respectively. 
 \[
   for(i=0; i<=N; i++) 
