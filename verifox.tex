@@ -1,42 +1,12 @@
-\subsection{Path-based Symbolic Execution}
-We have developed a symbolic execution tool, \verifox, 
-for FW-HW co-verification of IP level and SoC level designs. 
-Given a program netlist model, $\mathcal{PN}$, a scenario, 
+\textbf{Step 4: Mining Scenario/Transaction Pairs Using Symbolic Execution}
+Given a co-verification model, $\mathcal{M}_{seq}$, a scenario, 
 $\mathcal{S}$, and a property expressed as $\mathit{assert}(c)$ 
-(where $c$ is a condition stated in terms of variables in $\mathcal{PN}$)
-as input, \verifox performs path-based exploration of $\mathcal{PN}$ 
+(where $c$ is a condition stated in terms of variables in $\mathcal{M}_{seq}$)
+as input, \verifox performs path-based exploration of $\mathcal{M}_{seq}$ 
 to automatically infer {\em scencario/transaction} pairs and check their validity 
 using backend solvers. If the condition $c$ does not hold, 
-then $\mathcal{PN}$ is said to have violated the property. 
+then $\mathcal{M}_{seq}$ is said to have violated the property. 
 
-
-\Omit{
-explores only those FW-HW interactions
-that are relevant to $\mathcal{S}$. \verifox 
-
-\verifox takes a C program as an input, where 
-the properties of interest are specified using 
-statements in the code. Here, $c$ is a condition 
-stated in terms of program variables that we 
-want to hold at the point where the assertion occurs. 
-}
-
-\Omit{
- that performs 
-path-based exploration of a unified FW-HW model, 
-$\mathcal{PN}$ to automatically check the validity of the 
-relevant {\em scencario/transaction} pairs of the FW-HW interactions.
-}
-\Omit {
-\verifox performs depth-first exploration 
-of program paths with aggressive pruning strategy  
-with certain optimizations
-that makes it suitable for verifying hardware designs. 
-A hardware circuit having its 
-behaviour specified in a manner similar to state machine, would usually
-be translated into a program that has a large number of control-flow paths with
-only tiny fractions of them being feasible. 
-}
 A typical path-based symbolic execution engine might explore 
 a path until it come to an $\mathit{assert}(c)$ statement.
 This whole path can then be posed as a query to a SAT solver to see if the 
@@ -62,7 +32,7 @@ it easier for the underlying SAT solver.
 \SetKwInOut{Output}{output}
 \SetKw{KwNot}{not}
 \begin{small}
-\Input{Program Netlist $\mathcal{PN}$ with properties specified with $assert(c)$, scenario specified with $assume(c)$}
+  \Input{Co-verification Model $\mathcal{M}_{seq}$ with properties specified with $assert(c)$, scenario specified with $assume(c)$}
 \Output{The status (\safe or \unsafe) and a counterexample if \unsafe}
 \tcc{The initial state}
 $S_0 \leftarrow I(x)$ \nllabel{algline:init}\;
@@ -103,14 +73,14 @@ $worklist.put(\tuple{S_0,stmt})$ \;
 	\return \safe \;
 }
 \end{small}
-\caption{Working of \textsc{verifox}\label{Alg:verifox}}
+\caption{Mine Scenario/Transaction Pair Using Symbolic Execution\label{Alg:verifox}}
 \end{algorithm2e}
 
 \Omit{
 , in which every time a branch or an assumption
 is encountered, a feasibility check is made to prune away infeasible 
 paths as early as possible. }
-\vspace{-4mm}
+%\vspace{-4mm}
 \algref{verifox} shows the overall algorithm of \verifox. States mentioned
 in the algorithm are all symbolic states, which are quantifier-free predicates characterizing
 a set of program states. 
