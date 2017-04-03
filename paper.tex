@@ -324,7 +324,7 @@ received data in the {\em loopback} mode.  To do so, we annotate the FW model
 with an assertion $assert()$, as shown in Figure~\ref{firmware}.  Note that the 
 array containers $rx\_b$ and $tx\_b$ stores the data obtained through the $inb$
 and $outb$ function calls which directly read from and write to the UART IP ports
-respectively. 
+respectively. \rmcmt{more on co-specification PSL}. 
 \[
   for(i=0; i<=N; i++) 
    \quad assert(rx\_b[i] == tx\_b[i]);
@@ -551,15 +551,8 @@ configures a UART in {\em loopback} mode, then the interaction between
 $\mathcal{FT}$ and $\mathcal{HT}$ must contain transactions in {\em
 transmitter} as well as {\em receiver} module.
 %
-\Omit{
-\textbf{Problem Statement}
-Given a FW model in C, HW models in Verilog RTL, a property $\psi$ and 
-a set of scenarios, the goal is to check whether $\psi$ holds under all 
-scenarios in the combined FW-HW model. 
-}
-%
 \section{Proposed Methodology}
-
+%
 \subsection{Approach 1: Path-based Co-verification Technique}
 %
 Figure~\ref{proposed-flow} describes our overall tool framework. In the
@@ -612,18 +605,84 @@ Here, $\mathit{In}$, $\mathit{Out}$, $\mathit{Seq}$, $\mathit{Comb}$
 are programs variables that model \emph{input}, \emph{output}, 
 \emph{sequential/state-holding} and \emph{combinational/stateless} 
 signals in the circuit.  $Asgn$ is a finite set of assignments 
-to $Out$, $Seq$ and $Comb$. \\ 
+to $Out$, $Seq$ and $Comb$. Figure~\ref{ex1} shows an example of 
+translating a Verilog RTL circuit with an always block and continuous
+assignment statement into an equivalent C program.
+%
+\begin{figure*}[t]
+\scriptsize  
+\centering
+\begin{tabular}{l|l|l}
+\hline
+ Verilog & Dataflow Graph & Software netlist \\
+\hline
+\begin{lstlisting}[mathescape=true,language=Verilog]
+module top(clk, a);
+input clk, a;
+reg b, d, e;
+wire c = e ? 1'b0:d;
+wire cond = a;
+always @(posedge clk) 
+ begin
+  b<=a;
+  if(cond && b)
+   e<=b;
+  else 
+   e<=0;
+  d<=c;
+ end
+endmodule
+\end{lstlisting}
+&
+\begin{minipage}{5.0cm}
+\centering
+\scalebox{.5}{\import{figures/}{ckt.pspdftex}}
+\end{minipage}
+&
+\begin{lstlisting}[mathescape=true,language=C]
+struct state_elements_top {
+ unsigned int b, d, e, c;
+};
+struct state_elements_top  u1;
+void top(unsigned int clk, 
+   unsigned int a)
+{
+  _Bool b_old,d_old,e_old;
+  _Bool cond;
+
+  b_old = u1.b;
+  d_old = u1.d;
+  e_old = u1.e; 
+
+  cond = a;
+  u1.c = (u1.e) ? 0 : u1.d;
+
+ u1.b = a;
+ if(cond && b_old)
+    u1.e = b_old;
+  else
+    u1.e = 0;
+  u1.d = u1.c;  
+}
+\end{lstlisting}
+\\
+\hline
+\end{tabular}
+\caption{Circuit to Software}
+\label{ex1}
+\end{figure*}
 %
 \textbf{Step 2: Constructing Co-verification Model}
 An unified co-verification model is constructed by sequentializing 
 HW and its interacting FW threads, thereby generating a sequential 
 single-threaded co-verification model in C.  The motivation behind
-sequentialization is based on our observation that practical industrial
-co-designs exhibit producer-consumer interaction behavior.  We observe 
-that in practise, a FW thread is mostly independent of the HW thread they interact 
-with~\cite{hvc,codes14}.  This behavior is also prevelant in industrial co-designs, 
-such as IBM Text Accelerator co-design~\cite{polig2014micro,polig2014fpl}
-and IBM coherent FFT coprocessor~\cite{giefers2015accelerating}.
+sequentialization is based on our observation that many practical industrial
+co-designs exhibit producer-consumer interaction behavior, such as IBM 
+Text Accelerator co-design~\cite{polig2014micro,polig2014fpl}, 
+IBM coherent FFT coprocessor~\cite{giefers2015accelerating}, RockBox 
+Media Player~\cite{hvc}, linux device driver interacting with QEMU emulated
+hardware code~\cite{codes14} and others.  We observe that in practise, a FW 
+thread is mostly independent of the HW thread they interact with~\cite{hvc,codes14}.  
 Specifically, a FW thread is only responsible for configuring the 
 HW transactions by writing to memory mapped registers or polling 
 the interrupt status register for data transmission or receiving 
@@ -631,8 +690,10 @@ incoming data packets. This interaction pattern exhibits producer-consumer
 relationship, which is also evident in case of our UART example in 
 Figure~\ref{fig:interleaving1}.  
 %
-We formally define a single-threaded sequential unified co-verification model, 
-denoted by $\mathcal{M}_{seq}$. 
+We now formally define a single-threaded sequential co-verification model, 
+denoted by $\mathcal{M}_{seq}$, obtained by sequentializing the HW and FW 
+models.
+%
 \[ 
 \begin{array}[t]{@{}lll}
   \mathcal{M}_{seq} & {:}{:}{=} & \mathit{Procedure} \\
