@@ -9,19 +9,5 @@
   \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
   \selectfont}%
 \fi\endgroup%
-\begin{picture}(3447,4584)(2506,-7105)
-\put(2521,-6361){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}Sequential Logic}%
-}}}}
-\put(2521,-6586){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\forall t,\; b(t+1)=a(t)$}%
-}}}}
-\put(2521,-6811){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\forall t,\; e(t+1)=if(cond(t)\; \wedge\; b(t))\; then\; b(t)\; else\; 0$}%
-}}}}
-\put(2521,-7036){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\forall t,\; d(t+1)=c(t)$}%
-}}}}
-\put(2521,-5596){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}Combinational Logic}%
-}}}}
-\put(2521,-5821){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\forall t,\; c(t)= if\; e(t)\; then\; 0\; else\; d(t)$}%
-}}}}
-\put(2521,-6046){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\forall t,\; cond(t) = a(t)$}%
-}}}}
+\begin{picture}(3222,2592)(2731,-5113)
 \end{picture}%

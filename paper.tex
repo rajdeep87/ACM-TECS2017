@@ -119,7 +119,7 @@ observable by the SW (the drivers or firmware).  In particular, TLMs
 are often not cycle-accurate.  These models are used to verify high-level
 functionality of the system well before the RTL is
 available~\cite{codes14,codes15}. Co-verification of the TLM and the
-SW is typically performed by means of testing.
+SW is typically performed by means of testing~\cite{hvc,codes14}.
 
 In the post-RTL phase, when the RTL design is available, hardware/software
 co-verification becomes more complex.  Unlike the TLM, which only captures
@@ -270,10 +270,12 @@ In this paper, we make the following contributions:
   \item We present an automatic HW/SW co-verifcation tool called, \hwcbmcv,
     which follows the monolithic verification technique.  Our path-based 
     approach is implemented in a tool called, \verifox. Both tools can handle
-    co-designs where the hardware is implemented in Verilog RTL and firmware is  
-    specified in ANSI-C.  We distribute the HW/SW co-verification tools, \hwcbmcv and 
-    \verifox, along with our co-design benchmarks in Verilog RTL and C models
-here~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a2c\&usp=sharing}. 
+    co-designs where the hardware is implemented in Verilog RTL (IEEE
+    SystemVerilog 2005 standards) and firmware is  
+    specified in ANSI-C (C89, C99 standards).  We distribute the HW/SW 
+    co-verification tools, \hwcbmcv and \verifox, along with our co-design 
+    benchmarks in Verilog RTL and C models 
+    here~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a2c\&usp=sharing}. 
 
   \item We show that the proposed path-based approach translates the HW/SW co-verification problem
      into a purely software verification problem.  Our experiments show that the representation
@@ -282,11 +284,15 @@ here~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a
      best of our knowledge, this is the first attempt to synthesize a pure
      software model for co-verification purpose.  
 
-   \item We present an unified property specification language in \hwcbmcv and 
-     \verifox that allows designers to write meaningful formal co-specification 
-     over hardware and firmware events. We believe that the formal
-     co-specification model will significantly ease the adoption of formal tools 
-     for co-verification of industrial strength co-designs. 
+   \item We present an unified property specification language for
+     co-verification that allows engineers to write meaningful 
+     formal co-specification over hardware and firmware events and specify
+     temporal correlation between these events.  Our tool also supports a
+     fragment of IEEE Property Specification Language. 
+     
+     %We believe that the formal
+     %co-specification model will significantly ease the adoption of formal tools 
+     %for co-verification of industrial strength co-designs. 
     
 \end{enumerate}
 %
@@ -612,16 +618,17 @@ assignment statement into an equivalent C program.
 \begin{figure*}[t]
 \scriptsize  
 \centering
-\begin{tabular}{l|l|l}
+\begin{tabular}{l|l|l|l}
 \hline
- Verilog & Dataflow Graph & Software netlist \\
+  Verilog & Formal Semantics & Synthesized Hardware & Software netlist \\
 \hline
 \begin{lstlisting}[mathescape=true,language=Verilog]
 module top(clk, a);
 input clk, a;
-reg b, d, e;
-wire c = e ? 1'b0:d;
-wire cond = a;
+reg b,d,e; 
+wire c,cond;
+assign c = e ? 1'b0:d;
+assign cond = a;
 always @(posedge clk) 
  begin
   b<=a;
@@ -634,36 +641,33 @@ always @(posedge clk)
 endmodule
 \end{lstlisting}
 &
-\begin{minipage}{5.0cm}
+\begin{minipage}{4.2cm}
+%\centering
+\scalebox{.5}{\import{figures/}{semantics.pspdftex}}
+\end{minipage}
+&
+\begin{minipage}{4.0cm}
 \centering
 \scalebox{.5}{\import{figures/}{ckt.pspdftex}}
 \end{minipage}
 &
 \begin{lstlisting}[mathescape=true,language=C]
 struct state_elements_top {
- unsigned int b, d, e, c;
-};
+ unsigned int b, d, e; };
 struct state_elements_top  u1;
 void top(unsigned int clk, 
-   unsigned int a)
-{
-  _Bool b_old,d_old,e_old;
-  _Bool cond;
-
-  b_old = u1.b;
-  d_old = u1.d;
-  e_old = u1.e; 
-
+   unsigned int a) {
+  _Bool c,cond;
+  _Bool b_old=u1.b, d_old=u1.d;
+  _Bool e_old=u1.e;
   cond = a;
-  u1.c = (u1.e) ? 0 : u1.d;
-
- u1.b = a;
- if(cond && b_old)
+  c = (u1.e)?0:u1.d;
+  u1.b = a;
+  if(cond && b_old)
     u1.e = b_old;
   else
     u1.e = 0;
-  u1.d = u1.c;  
-}
+  u1.d = c;  }
 \end{lstlisting}
 \\
 \hline
@@ -672,6 +676,8 @@ void top(unsigned int clk,
 \label{ex1}
 \end{figure*}
 %
+
+
 \textbf{Step 2: Constructing Co-verification Model}
 An unified co-verification model is constructed by sequentializing 
 HW and its interacting FW threads, thereby generating a sequential 
@@ -726,23 +732,7 @@ $V'$ written by the execution of $\mathcal{HT}$ are disjoint
 ($V \cap V' = \emptyset$), (2) and the executions 
 of $\mathcal{FT}$ and $\mathcal{HT}$ consumes values 
 in $V'$ and $V$, respectively.
-
-Figure~\ref{fig:interleaving1} illustrates the FW-HW interaction pattern 
-for the UART IP. The FW CFG is shown in the left and the 
-HW RTL code snippet is shown in the right. We abuse notations and 
-represent $\mathcal{HT}$ in the form of RTL and $\mathcal{FT}$ as CFG
-for our illustration purpose. Here, $\mathcal{HT}$ is the producer of interrupt 
-status signal, $irq\_o$, which is read by $\mathcal{FT}$ in state $s_1$. 
-The signal $irq\_o$ is  triggered when transmitter buffer is 
-{\em EMPTY} or receiver buffer is {\em FULL}. 
-$\mathcal{HT}$ also produces interrupt status by writing to the 
-memory mapped register, $UART\_IS$, which is consumed by 
-$\mathcal{FT}$ in state $s_2$.  In another interaction, $\mathcal{HT}$
-sends a data-packet to $UART\_TR$ which is consumed by $\mathcal{FT}$ in state $s_7$.
-Similarly, $\mathcal{FT}$ is the producer of $data$, $(outb(data,UART\_TR))$, 
-in state $s_6$ which is consumed by $\mathcal{HT}$. Thus, the interaction
-pattern between $\mathcal{HT}$ and $\mathcal{FT}$ clearly exhibits producer-consumer
-relationship. This enables us to sequentialize the HW and FW thread. \\
+%
 %
 \begin{figure}[t]
 \scalebox{.55}{\import{figures/}{interleaving.pspdftex}}
@@ -856,46 +846,12 @@ The communication between them takes place through these function calls.
 %===============================================================================
 \section{Experimental Results}
 %===============================================================================
-
+%
 We report experimental results for FW-HW co-verification of a UART IP and a
 SoC design.  All our experiments were performed on an Intel Xeon 3.07\,GHz
-machine with 48\,GB RAM.  We use a state-of-the-art hardware/software
-co-verification tool, \hwcbmcv, and compare it against \verifox. 
-MiniSAT-2.2.0~\cite{DBLP:conf/sat/EenB05} was used as underlying SAT solver
-with \verifoxver, CBMC-5.0~\cite{DBLP:conf/tacas/ClarkeKL04} and
-\hwcbmcver~\cite{CK03}.  We also used other path-based symbolic execution
-tools, such as, \kleever and \symbioticver for our experiments and presented
-a comparison with \verifoxver.  All times reported are in seconds.  The
-timeout for all our experiments was set to 2~hours.  The UART IP, SoC
-benchmark (Verilog RTL and Firmware in C) and our co-verification
-tools,\hwcbmcv and \verifox, are available for
-download~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a2c\&usp=sharing}.
-
-\Omit{
-\item {\em {\verifox} -- A tool for HW/SW co-verification:} We address the
-co-verification problem at post-RTL phase and present a tool, \verifox, for
-bounded HW/SW co-verification of IP level and SoC level design.  \verifox
-supports IEEE 1364-2005 System Verilog standards and the C89, C99 standards. 
-\verifox also supports SAT and SMT backends for constraint solving.  
-}
-\Omit{
-Even though \verifox supports SMT solvers such as
-Z3~\cite{z32008} as backend solvers, the current implementation communicates
-with these solvers using files rather than APIs.  Since a new solver
-instance is generated for every query, incremental encoding cannot be used. 
-Due to this, the runtimes of \verifox with SMT solvers on benchmarks are
-significantly higher.  As the current implementation does not support
-incremental encoding with SMT solvers, the runtimes would not provide a fair
-comparison of \verifox with SMT versus \verifox with SAT solvers. 
-Therefore, we are omitting the results obtained using SMT solvers.  
-
-All the benchmarks in
-Verilog (excluding commercial ARM IP), software-netlist models in C,
-firmware models, our tool \textsc{Verifox} and scripts for running \hwcbmcv,
-\cbmc, \textsc{klee} and \textsc{Symbiotic} are available
-here~\footnote{https://drive.google.com/file/d/0BynC6sd-wTYgSEU5eEswbnRqWUE/view?usp=sharing}
-}
-
+machine with 48\,GB RAM.  All times reported are in seconds.  The timeout 
+for all our experiments was set to 2~hours.  
+%
 %-------------------------------------------------------------------------------
 \subsection{FW-HW co-verification of UART}
 %-------------------------------------------------------------------------------
@@ -913,7 +869,27 @@ approximately 1000 lines of Verilog RTL, generating several thousand gates.
 The UART is obtained from~\url{http://www.opencores.org}.  A software
 netlist model (in C) is synthesized from the UART RTL using \emph{v2c}.  The
 software netlist model is approximately 1100 LOC.
-
+\rmcmt{refer stats table}
+%
+\begin{table}
+\begin{center}
+{\scriptsize
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+  Circuit & Verilog & Latches(L)/ & Input & Output & GATE & Firmware \\
+  & LOC & FF & Ports & Ports & Count & (LOC)\\ 
+\cline{1-7}
+\multicolumn{7}{|c|}{Universal Asynchronous Receiver Transmitter} \\ \hline 
+  UART & 1200 & 356 & 12 & 9 & 413 & 528 \\ \hline
+\multicolumn{7}{|c|}{System-On-a-Chip} \\ \hline 
+  SoC & 3567 & 840 & 14 & 11 & 945 & 734 \\ \hline
+\end{tabular}
+}
+\end{center}
+\caption{\scriptsize Design statistics for UART IP and SoC Design}
+\label{table:stats}
+\end{table}  
+%
 \textbf{\emph{UART Configuration:}} The UART IP core is configured in
 different operating modes, namely--{\em transmission without interrupt
 enabled} (Scenario A), {\em transmission with interrupt enabled} (Scenario
@@ -927,7 +903,25 @@ both the transmitter and the receiver are active in this mode.  The firmware
 can receive interrupt from the transmitter or receiver module depending on
 whether the transmitter buffer is empty or the receiver buffer is full
 respectively, hence the control is non-deterministic in this mode.
-
+%
+\textbf{Firmware Hardware Interaction Pattern in UART}
+Figure~\ref{fig:interleaving1} illustrates the FW-HW interaction pattern 
+for the UART IP. The FW CFG is shown in the left and the 
+HW RTL code snippet is shown in the right. We abuse notations and 
+represent $\mathcal{HT}$ in the form of RTL and $\mathcal{FT}$ as CFG
+for our illustration purpose. Here, $\mathcal{HT}$ is the producer of interrupt 
+status signal, $irq\_o$, which is read by $\mathcal{FT}$ in state $s_1$. 
+The signal $irq\_o$ is  triggered when transmitter buffer is 
+{\em EMPTY} or receiver buffer is {\em FULL}. 
+$\mathcal{HT}$ also produces interrupt status by writing to the 
+memory mapped register, $UART\_IS$, which is consumed by 
+$\mathcal{FT}$ in state $s_2$.  In another interaction, $\mathcal{HT}$
+sends a data-packet to $UART\_TR$ which is consumed by $\mathcal{FT}$ in state $s_7$.
+Similarly, $\mathcal{FT}$ is the producer of $data$, $(outb(data,UART\_TR))$, 
+in state $s_6$ which is consumed by $\mathcal{HT}$. Thus, the interaction
+pattern between $\mathcal{HT}$ and $\mathcal{FT}$ clearly exhibits producer-consumer
+relationship. This enables us to sequentialize the HW and FW thread. \\
+\rmcmt{stats in a table, remove klee result, SoC diagram}
 \textbf{\emph{Discussion:}}
 Table~\ref{table:safe} reports the run times for bounded safety proofs of
 FW-HW interaction properties of the UART IP core.  Column~1 in
