@@ -703,8 +703,45 @@ void top(unsigned int clk,
 \end{figure*}
 %
 
+\textbf{Step 2: Sequentialization based on Producer-Consumer Interaction}
+%
+A communicating pair of executions of 
+$\mathcal{FT}$ and $\mathcal{HT}$ is an {\em interaction}, which 
+takes place through shared variables (or shared registers)
+only.  An interaction is said to exhibit {\em producer-consumer}
+interaction pattern if 1) the set of variables $V$ written by 
+the execution of $\mathcal{FT}$ and and the set of variables 
+$V'$ written by the execution of $\mathcal{HT}$ are disjoint 
+($V \cap V' = \emptyset$), (2) and the executions 
+of $\mathcal{FT}$ and $\mathcal{HT}$ consumes values 
+in $V'$ and $V$, respectively.
+%
+Figure~\ref{fig:interleaving1} illustrates the FW-HW interaction pattern 
+for the UART IP. The FW CFG is shown in the left and the 
+HW RTL code snippet is shown in the right. We abuse notations and 
+represent $\mathcal{HT}$ in the form of RTL and $\mathcal{FT}$ as CFG
+for our illustration purpose. Here, $\mathcal{HT}$ is the producer of interrupt 
+status signal, $irq\_o$, which is read by $\mathcal{FT}$ in state $s_1$. 
+The signal $irq\_o$ is  triggered when transmitter buffer is 
+{\em EMPTY} or receiver buffer is {\em FULL}. 
+$\mathcal{HT}$ also produces interrupt status by writing to the 
+memory mapped register, $UART\_IS$, which is consumed by 
+$\mathcal{FT}$ in state $s_2$.  In another interaction, $\mathcal{HT}$
+sends a data-packet to $UART\_TR$ which is consumed by $\mathcal{FT}$ in state $s_7$.
+Similarly, $\mathcal{FT}$ is the producer of $data$, $(outb(data,UART\_TR))$, 
+in state $s_6$ which is consumed by $\mathcal{HT}$. These interaction patterns 
+between $\mathcal{HT}$ and $\mathcal{FT}$ is exploited to generate a 
+sequential unified {\em program netlist} model which is defined next.\\ \\
+%
+\begin{figure}[t]
+\scalebox{.55}{\import{figures/}{interleaving.pspdftex}}
+\caption{Producer Consumer Interactions Pattern
+\label{fig:interleaving1}}
+\end{figure}
+%
 
-\textbf{Step 2: Constructing Co-verification Model}
+
+\textbf{Step 3: Constructing Co-verification Model}
 An unified co-verification model is constructed by sequentializing 
 HW and its interacting FW threads, thereby generating a sequential 
 single-threaded co-verification model in C.  The motivation behind
@@ -747,28 +784,6 @@ The interface variables $\{Var\_1,\dots,Var\_n\}$
 FW to communicate with $\mathcal{SN}$. \\ 
 %
 
-\textbf{Step 3: Sequentialization based on Producer-Consumer Interaction}
-%
-A communicating pair of executions of 
-$\mathcal{FT}$ and $\mathcal{HT}$ is an {\em interaction}, which 
-takes place through shared variables (or shared registers)
-only.  An interaction is said to exhibit {\em producer-consumer}
-interaction pattern if 1) the set of variables $V$ written by 
-the execution of $\mathcal{FT}$ and and the set of variables 
-$V'$ written by the execution of $\mathcal{HT}$ are disjoint 
-($V \cap V' = \emptyset$), (2) and the executions 
-of $\mathcal{FT}$ and $\mathcal{HT}$ consumes values 
-in $V'$ and $V$, respectively.
-%
-%
-\begin{figure}[t]
-\scalebox{.55}{\import{figures/}{interleaving.pspdftex}}
-\caption{Producer Consumer Interactions Pattern
-\label{fig:interleaving1}}
-\end{figure}
-%
-
-
 \textbf{Step 4: Property Driven Slicing of Co-verification Model}
 A property-driven slicing is performed on the unified model, $\mathcal{M}_{seq}$.  
 This step is purely syntactic, meaning that we perform a backward dependency 
@@ -779,69 +794,6 @@ is then passed to the symbolic execution engine for path-based exploration. \\
 %=======================================================================================
 %\subsection{\verifox: Path-wise Symbolic Execution Tool} 
 %=======================================================================================
-%\Omit{
-%\begin{figure}[tp]
-%\centering
-%\vspace*{0.3cm}
-%\scalebox{.50}{\import{figures/}{work-flow.pspdftex}}
-%\caption{Automated Slicing and Trace partitioning\label{fig:desc}}
-%\end{figure}
-%}
-\Omit{
-\begin{figure}[t]
-\tikzstyle{rblock}=[rounded corners,draw=black]
-\tikzstyle{block}=[draw=black]
-\begin{tikzpicture}
-
-\node (v2c) [rblock] {\scs{\emph{v2c}}};
-\node (snl) [block,below of=v2c] {\scs{Software-netlist}};
-\draw[->] (v2c) -- (snl);
-
-
-\node (HD) [above left=.3cm and .3cm of v2c] {\scs{\parbox{8em}{Hardware Design \\ (in Verilog)}}};
-\draw[->] (HD) -- (v2c);
-
-\node (prop) [above right=.3cm and .3cm of v2c] {\scs{\parbox{8em}{Property \\ (in SVA)}}};
-\draw[->] (prop) -- (v2c);
-
-\node (cmm) [block,below of=snl] {\scs{\parbox{9em}{Composite Monolithic Model}}};
-\draw[->] (snl) -- (cmm);
-
-\node (dcmm) [left=1cm of cmm] {};
-\node (fw) [above=.1cm of dcmm  ] {\scs{Firmware}};
-\node (as) [below=.1cm of dcmm] {\scs{Assumptions}};
-\draw[->] (fw) -- (cmm);
-\draw[->] (as) -- (cmm);
-
-\node (pds) [block,below of=cmm] {\scs{\parbox{8em}{Property-driven slicing}}};
-\draw[->] (cmm) -- (pds);
-
-\node (tp) [block,below=.8cm of pds] {\scs{Trace partitioning}};
-\node (iss) [block,below right=.5cm  and .05cm of tp.east] {\scs{\parbox{6em}{Incremental SAT solving}}};
-\node (sat) [rblock,below=1.5cm of tp] {\scs{SAT solver}};
-\node (ipp) [block,left=2cm of iss] {\scs{\parbox{6em}{Infeasible path pruning}}};
-
-\draw [<->] (tp) -- (iss);
-\draw [<->] (tp) -- (ipp);
-\draw [<->] (sat) -- (iss);
-\draw [<->] (sat) -- (ipp);
-
-\node (vfbox) [rblock,fit={(tp) (iss) (sat) (ipp)}] {};
-\draw[->] (pds) -- (vfbox);
-
-\node (verifox) [right=.2cm of tp] {\scs{{\bf \verifox}}};
-
-\node (safe) [above right=.2cm and .2cm of vfbox.east] {\scs{Verification Successful}};
-\node (unsafe) [below right=.2cm and .2cm of vfbox.east] {\scs{\parbox{8em}{Verification Failed (Counterexample)}}};
-
-\draw[->] (vfbox.9) -- (safe);
-\draw[->] (vfbox.-12) -- (unsafe);
-
-\end{tikzpicture}
-\caption{Automated Slicing and Trace partitioning\label{fig:desc}}
-\end{figure}
-}
-%
 \input{verifox}
 %
 \subsection{Approach 2: Monolithic Co-verification Technique}
@@ -853,7 +805,7 @@ is then passed to the symbolic execution engine for path-based exploration. \\
 \label{fig:conventional}
 \end{center}
 \end{figure}
-
+%
 Figure~\ref{fig:conventional} illustrates the conventional approach to HW/SW
 co-veri\-fi\-cation, as implemented in the state-of-the-art co-verification
 tool, \hwcbmcv~\cite{CKY03,vlsid13}.  \hwcbmcv is the only open-source
@@ -889,6 +841,17 @@ We report experimental results for FW-HW co-verification of a UART IP and a
 SoC design.  All our experiments were performed on an Intel Xeon 3.07\,GHz
 machine with 48\,GB RAM.  All times reported are in seconds.  The timeout 
 for all our experiments was set to 2~hours.  
+%
+
+\textit{\textbf{State-of-the-art Co-verification tools:}} 
+%There exists plethora of tools for either SW verification or HW verification.
+%
+Despite extensive use of model checking and other formal methods in 
+SW verification or HW verification domain, building automated 
+co-verification tools using formal methods has received 
+little attention in the past.  We are not aware of any automated 
+formal co-verification tool in the literature that can readily accept 
+co-designs written in C and Verilog RTL. In this paper, we address this gap. 
 %
 %-------------------------------------------------------------------------------
 \subsection{FW-HW co-verification of UART}
@@ -1186,6 +1149,11 @@ respect to a scenario due to monolithic BMC based approach.  Hence, \hwcbmcv
 passes extremely complex formulas to the underlying solver, which often
 contain irrelevant logic with respect to a particular scenario and are
 therefore difficult to solve.
+
+% ===============================================================================
+\section{Limitations of Proposed Approach}
+% ===============================================================================
+
 
 % ===============================================================================
 \section{Related work}
