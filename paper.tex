@@ -763,6 +763,19 @@ in state $s_6$ which is consumed by $\mathcal{HT}$.
 \label{fig:interleaving1}}
 \end{figure}
 %
+Table~\ref{transaction} shows the FW transactions $(\mathcal{FT})$ and its 
+interacting HW transactions $(\mathcal{HT})$ from Figure~\ref{fig:interleaving1}. 
+The description above the arrows 
+in column 1 shows the events in $\mathcal{FT}$ and the letter below the
+arrows denotes the event type, producer $(\mathcal{P})$ or consumer 
+$(\mathcal{C})$. Arrows with empty description below denotes reading of interface
+variables or local variables in $\mathcal{FT}$.  Arrows with no description
+simply denotes control-flow with no events.  The entires in the right column of
+Table~\ref{transaction} shows the corresponding transaction in HW modules. We
+simply denote a transaction in HW module with the name of the module,
+transmitter module in UART ($uart\_tx$), receiver module in UART ($uart\_rx$), or
+the top UART module ($uart\_top$).
+%
 \begin{table}
 \begin{center}
 {\scriptsize
@@ -791,22 +804,18 @@ in state $s_6$ which is consumed by $\mathcal{HT}$.
 }
 \end{center}
 \caption{\scriptsize Firmware Transactions and its interacting HW transaction}
-\label{table:stats}
+\label{transaction}
 \end{table}  
 %
-This interaction behavior can be analysed 
-to produce a sequential single-threaded co-verification model. 
-
 
 
 \textbf{Step 3: Co-verification Model}
-An unified co-verification model is constructed by sequentializing 
-HW and its interacting FW threads, thereby generating a sequential 
-single-threaded co-verification model in C.  
+An unified co-verification model is constructed by instrumenting  
+the software netlist model of HW RTL inside the FW thread, thereby 
+generating a sequential single-threaded co-verification model in C.  
 %
-We now formally define a single-threaded sequential co-verification model, 
-denoted by $\mathcal{M}_{seq}$, obtained by sequentializing the HW and FW 
-models.
+We now formally define a our co-verification model, denoted by 
+$\mathcal{M}_{seq}$.\rmcmt{refer moduleName} as software netlist.
 %
 \[ 
 \begin{array}[t]{@{}lll}
