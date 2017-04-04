@@ -1,16 +1,7 @@
+%[FORMAT: 10 page ACM two-column format in 9pt]
 \documentclass[sigconf]{acmart}
 
 \usepackage{booktabs} % For formal tables
-
-%\usepackage[ruled]{algorithm2e} % For algorithms
-%\renewcommand{\algorithmcfname}{ALGORITHM}
-%\SetAlFnt{\small}
-%\SetAlCapFnt{\small}
-%\SetAlCapNameFnt{\small}
-%\SetAlCapHSkip{0pt}
-%\IncMargin{-\parindent}
-
-%\IEEEoverridecommandlockouts
 
 \usepackage{colortbl}
 
@@ -70,7 +61,40 @@
 \input{symbols}
 \input{refs}
 
-\title{Mining Scenario/Transaction Pairs HW/SW Co-verification Using Symbolic Execution}
+\title{Mining Scenario/Transaction Pairs in HW/SW Co-verification Using Symbolic Execution}
+
+\Omit{ % Double blind
+
+\author{
+\alignauthor
+Rajdeep Mukherjee\\
+       \affaddr{University of Oxford}\\
+       \email{rajdeep.mukherjee@cs.ox.ac.uk}
+%
+\alignauthor
+Saurabh Joshi \\
+  \affaddr{IIT, Hyderabad} \\
+  \email{sbjoshi@iith.ac.in}
+%
+\alignauthor
+John O'Leary \\
+  \affaddr{Intel Corporation, USA} \\
+  \email{john.w.oleary@intel.com}
+%
+\alignauthor
+Daniel Kroening \\
+  \affaddr{University of Oxford} \\
+  \email{kroening@cs.ox.ac.uk}
+%
+\alignauthor
+Tom Melham \\
+  \affaddr{University of Oxford} \\
+  \email{tom.melham@cs.ox.ac.uk}
+}
+%
+}
+
+
 %===============================================================================
 \begin{abstract}
 %===============================================================================
@@ -163,36 +187,40 @@ co-verification.  We will call the unified FW-HW model as \emph{co-verification 
 In this paper, we present two different approaches for automatic formal
 verification of HW/SW co-designs -- \emph{monolithic} and \emph{path-based}.  
 We embody these techniques in our tools, \hwcbmcv and \verifox, respectively. 
+
+
 A desirable characteristic of a co-verification model is the ability to exploit 
-the expressivity of the underlying reasoning engines, for example, constructing 
-a bit-level co-verification model for SAT solvers or a word-level model for SMT 
-solvers.  To this end, \hwcbmcv constructs a co-verification model through 
-in tandem symbolic execution of the HW and FW models.  A bit-level 
-netlist representation in And Inverter Graph (AIG) format or word-level netlist in
-format similar to SMT-LIB standards is synthesized from a HW Register Transfer 
-Level (RTL) implementation. Similarly, the SW, given in C, is automatically 
-translated into a Static Single Assignment (SSA) form.  A monolithic verification 
-condition is generated from these two models which is then solved using a 
-satisfiability solver.  Whereas, a co-verification model in \verifox is constructed 
-by first translating the RTL description into a software representation in C followed 
-by sequentializing the hardware and firmware models.  This results in a single
+the expressivity of the underlying reasoning engines.  To this end, \hwcbmcv
+constructs either a bit-level co-verification model that are checked with a SAT solvers 
+or a word-level model that are checked with SMT solvers.  Whereas, a 
+co-verification model in \verifox is constructed 
+by first translating the RTL description into a software representation in C,
+called \emph{software netlist}, which is then followed by sequentializing the FW 
+model and the software netlist model.  This results in a single
 threaded sequential co-verification model which is represented in C. A path-wise 
 symbolic execution is then performed over the co-verification model to
 automatically mine relevant interaction behaviors between the FW and HW models.   
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %                     Co-specification Model  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-A co-verification models must enable the specification of system-level 
-properties across HW/SW boundaries for uncovering critical co-design bugs 
-and for effective co-verification.  Our co-specification models are 
-specified in C with the support of special primitive, called {\em next\_timeframe()}, 
-that can express temporal correlation between HW and FW events. The
-co-verification models in \hwcbmcv and \verifox can be easily verified against 
-the co-specification models.  The co-design properties expressed by 
-co-specification models are sufficiently expressive, amenable to 
-verification reuse and can be readily used in assertion-based verification.  
+Lack of support for property specification in a HW/SW co-design is one of the
+stumbling blocks for the application of formal techniques in co-verification.  
+In this paper, we express a co-design property in C 
+with the support of special primitive, called {\em next\_timeframe()}, 
+that can express temporal correlation between HW and FW events. 
+The co-design properties captures the overall design intent that enables
+specification of system-level properties across HW/SW boundaries. Thus, 
+they are sufficiently expressive, amenable to verification reuse and can be 
+readily used in assertion-based verification.  Closest to our
+unified property specification for co-verification is the language
+\textit{xPSL}~\cite{xPSL} proposed by Xie et al., which is the extension of IEEE PSL.  
+Note that the co-verification models in \hwcbmcv and \verifox are fully compliant 
+with our specification language, hence easily verifiable.  
 %
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %       Scenario, Transaction and Scenario/Transaction Pair
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -228,14 +256,16 @@ and effective co-verification.
  %        Difference between Monolithic and Path-wise Approach
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 A monolithic approach in \hwcbmcv is based on Bounded Model Checking~\cite{CKY03}, 
-hence it cannot exploit the infeasibility arising from scenario driven constrained 
-interaction behaviors.  Whereas, a path-based symbolic execution in 
-\verifox can automatically infer such Scenario/Transaction pairs and check their 
-validity using backend solvers.  We experimentally show that for building 
-effective and scalable formal co-verification tool, it is imperative to 
-automatically mine only relevant scenario/transaction pairs that occurs in 
-practical co-design environment. 
+hence it cannot exploit the infeasibility arising from scenario driven
+partitioning of HW-FW interaction behaviors.  Whereas, a path-based symbolic 
+execution in \verifox can automatically infer such Scenario/Transaction 
+pairs and check their validity using backend solvers.  We experimentally 
+show that for building an effective and scalable formal co-verification tool, 
+it is imperative to automatically mine only relevant scenario/transaction 
+pairs that occurs in practical co-design environment. 
 %
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %                        Concurrency   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -251,7 +281,8 @@ the master module (producer) solely updates the shared registers which are
 consumed by the slave (consumer).  This key observation allows us to
 sequentialize concurrent FW and HW models following specific interaction
 patterns.  This drastically reduces the total number of interleavings 
-between a FW and HW threads and simplies the overall verification effort. 
+between a FW and HW threads and simplies the overall complexity of the 
+verification task. 
 %
 %===============================================================================
 %\subsection{Contributions}
@@ -261,11 +292,13 @@ In this paper, we make the following contributions:
   
   \item We present two approaches for formal hardware/software co-verification
     -- 1) A \emph{monolithic} approach that clearly separates the symbolic
-    execution of hardware and firmware model and generates a monolithic SAT
-    formula for verification, 2) A \emph{path-based} approach that constructs a
-    unified co-verification model by sequentializing the hardware and firmware
-    models and generates multiple SAT formulas through combined symbolic
-    execution of the unified model. 
+    execution of HW and FW model and generate a monolithic SAT query for 
+    verification purpose, 2) A \emph{path-based} approach that constructs
+    an unified sequential co-verification model from HW and FW models and
+    generates multiple SAT queries that encodes relevant scenario/transaction 
+    pairs using symbolic execution.  To the best of our knowledge, this is the 
+    first attempt to synthesize a pure software co-verification model from
+    C/RTL co-designs specifically targeted for formal analysis.   
   
   \item We present an automatic HW/SW co-verifcation tool called, \hwcbmcv,
     which follows the monolithic verification technique.  Our path-based 
@@ -276,13 +309,6 @@ In this paper, we make the following contributions:
     co-verification tools, \hwcbmcv and \verifox, along with our co-design 
     benchmarks in Verilog RTL and C models 
     here~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a2c\&usp=sharing}. 
-
-  \item We show that the proposed path-based approach translates the HW/SW co-verification problem
-     into a purely software verification problem.  Our experiments show that the representation
-     of the sequentialized unified co-verification model in software languages allows us to 
-     mine relevant transaction/snecario pairs for effective co-verification.  To the 
-     best of our knowledge, this is the first attempt to synthesize a pure
-     software model for co-verification purpose.  
 
    \item We present an unified property specification language for
      co-verification that allows engineers to write meaningful 
@@ -533,7 +559,7 @@ inside the rounded boxes.  The blue arrows point to the state updates or
 predicate evaluation at a particular~$\varphi$. \\
 %
 \begin{figure}[t]
-\scalebox{.55}{\import{figures/}{fw-hw-interleaving.pspdftex}}
+\scalebox{.50}{\import{figures/}{fw-hw-interleaving.pspdftex}}
 \caption{Some HW Transactions for UART
 \label{fig:interleaving2}}
 \end{figure}
@@ -720,7 +746,8 @@ The interface variables $\{Var\_1,\dots,Var\_n\}$
 (input, output and inout ports) are declared inside the 
 FW to communicate with $\mathcal{SN}$. \\ 
 %
-%\textbf{Producer-consumer Interaction:}
+
+\textbf{Step 3: Sequentialization based on Producer-Consumer Interaction}
 %
 A communicating pair of executions of 
 $\mathcal{FT}$ and $\mathcal{HT}$ is an {\em interaction}, which 
@@ -740,7 +767,9 @@ in $V'$ and $V$, respectively.
 \label{fig:interleaving1}}
 \end{figure}
 %
-\textbf{Step 3: Property Driven Slicing of Co-verification Model}
+
+
+\textbf{Step 4: Property Driven Slicing of Co-verification Model}
 A property-driven slicing is performed on the unified model, $\mathcal{M}_{seq}$.  
 This step is purely syntactic, meaning that we perform a backward dependency 
 analysis starting from the property which only preserve those 
@@ -838,6 +867,15 @@ These two flows meet only at the solver.  Thus, \hwcbmcv generates a
 monolithic formula from the C and RTL description, which is then checked
 with SAT/SMT solvers.  \hwcbmcv provides specific handshake primitives such
 as $next\_timeframe()$ and $set\_inputs()$ to model FW-HW communications.
+\rmcmt{
+To this end, \hwcbmcv constructs a co-verification model through 
+in tandem symbolic execution of the HW and FW models.  A bit-level 
+netlist representation in And Inverter Graph (AIG) format or word-level netlist in
+format similar to SMT-LIB standards is synthesized from a HW Register Transfer 
+Level (RTL) implementation. Similarly, the SW, given in C, is automatically 
+translated into a Static Single Assignment (SSA) form.  A monolithic verification 
+condition is generated from these two models which is then solved using a 
+}
 %
 \Omit{
 The hardware and firmware run independently of each other. 
