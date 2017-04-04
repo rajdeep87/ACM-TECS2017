@@ -28,6 +28,7 @@
 %\usepackage{subfigure}
 \usepackage{mdwlist}
 \usepackage{multirow}
+\usepackage{mathtools}
 \usepackage[algo2e,linesnumbered,ruled,lined]{algorithm2e}
 \usepackage{url}
 \makeatother
@@ -274,7 +275,7 @@ which interleaves asynchronously. It is well recognized that concurrency is at
 the heart of co-verification. The number of interleavings between the FW
 and HW threads can be large, which can become a bottleneck in the
 verification process.  
-However, we observe that in practise, industrial co-designs exhibits 
+However, we observe that in practise that, industrial co-designs exhibits 
 producer-consumer
 relationship~\cite{polig2014micro,polig2014fpl,giefers2015accelerating} --
 the master module (producer) solely updates the shared registers which are
@@ -638,13 +639,13 @@ are programs variables that model \emph{input}, \emph{output},
 \emph{sequential/state-holding} and \emph{combinational/stateless} 
 signals in the circuit.  $Asgn$ is a finite set of assignments 
 to $Out$, $Seq$ and $Comb$. Figure~\ref{ex1} shows an example of 
-translating a Verilog RTL circuit with an always block and continuous
-assignment statement into an equivalent C program.
+Verilog RTL circuit containing an always block and continuous
+assignment statement and the equivalent software netlist in C.
 %
 \begin{figure*}[t]
 \scriptsize  
 \centering
-\begin{tabular}{l|l|l|l}
+\begin{tabular}{|l|l|l|l|}
 \hline
   Verilog & Formal Semantics & Synthesized Hardware & Software netlist \\
 \hline
@@ -703,7 +704,32 @@ void top(unsigned int clk,
 \end{figure*}
 %
 
-\textbf{Step 2: Sequentialization based on Producer-Consumer Interaction}
+\textbf{Step 2: Sequentialization based on Transaction Interaction}
+%
+Concurrency is at the heart of co-verification.  Testing concurrent 
+threads requires exploring all possible interleavings between a HW 
+and FW thread.  The number of interleavings could be potentially 
+exponential.  However,~\cite{codes14,hvc} showed that the 
+interaction between a FW thread and HW thread follows a 
+producer-consumer relationship. That is, a FW 
+thread is mostly independent of the HW thread they interact with~\cite{hvc,codes14}.  
+Specifically, a FW thread is only responsible for configuring the 
+HW transactions by writing to memory mapped registers or polling 
+the interrupt status register for data transmission or receiving 
+incoming data packets. 
+
+
+Furthermore, we observe producer-consumer interaction pattern 
+in many practical industrial co-designs, such as IBM 
+Text Accelerator co-design~\cite{polig2014micro,polig2014fpl}, 
+IBM coherent FFT coprocessor~\cite{giefers2015accelerating}, RockBox 
+Media Player~\cite{hvc}, linux device driver interacting with QEMU emulated
+hardware code~\cite{codes14}.  
+
+
+%This interaction pattern exhibits producer-consumer 
+%relationship, which is also evident in case of our UART example in 
+%Figure~\ref{fig:interleaving1}.  
 %
 A communicating pair of executions of 
 $\mathcal{FT}$ and $\mathcal{HT}$ is an {\em interaction}, which 
@@ -716,8 +742,8 @@ $V'$ written by the execution of $\mathcal{HT}$ are disjoint
 of $\mathcal{FT}$ and $\mathcal{HT}$ consumes values 
 in $V'$ and $V$, respectively.
 %
-Figure~\ref{fig:interleaving1} illustrates the FW-HW interaction pattern 
-for the UART IP. The FW CFG is shown in the left and the 
+Figure~\ref{fig:interleaving1} illustrates the producer-consumer relationship 
+in UART IP. The FW CFG is shown in the left and the 
 HW RTL code snippet is shown in the right. We abuse notations and 
 represent $\mathcal{HT}$ in the form of RTL and $\mathcal{FT}$ as CFG
 for our illustration purpose. Here, $\mathcal{HT}$ is the producer of interrupt 
@@ -729,9 +755,7 @@ memory mapped register, $UART\_IS$, which is consumed by
 $\mathcal{FT}$ in state $s_2$.  In another interaction, $\mathcal{HT}$
 sends a data-packet to $UART\_TR$ which is consumed by $\mathcal{FT}$ in state $s_7$.
 Similarly, $\mathcal{FT}$ is the producer of $data$, $(outb(data,UART\_TR))$, 
-in state $s_6$ which is consumed by $\mathcal{HT}$. These interaction patterns 
-between $\mathcal{HT}$ and $\mathcal{FT}$ is exploited to generate a 
-sequential unified {\em program netlist} model which is defined next.\\ \\
+in state $s_6$ which is consumed by $\mathcal{HT}$.  
 %
 \begin{figure}[t]
 \scalebox{.55}{\import{figures/}{interleaving.pspdftex}}
@@ -739,25 +763,46 @@ sequential unified {\em program netlist} model which is defined next.\\ \\
 \label{fig:interleaving1}}
 \end{figure}
 %
+\begin{table}
+\begin{center}
+{\scriptsize
+\begin{tabular}{|c|c|c|}
+\hline
+  Firmware & Hardware  \\
+  Transaction ($\mathcal{ST}$) & Transaction ($\mathcal{HT}$) \\ 
+\cline{1-2}
+   $s_1 \xrightarrow[]{irq_o} s_2 \xrightarrow[\mathcal{C}]{inb()} s_4
+   \xrightarrow[]{status == 0x0c} s_6 \xrightarrow[\mathcal{P}]{outb()} s_9 \rightarrow
+   s_{11} \rightarrow s_{12}$  & $s_2 \xrightarrow[\mathcal{C}]{inb()} s_4\;\; uart\_{rx}$
+   \\ 
+   & $s_6 \xrightarrow[]{outb()} s_9\;\; uart\_{tx}$ \\  \hline
+   
+   $s_1 \xrightarrow[]{irq_o} s_2 \xrightarrow[\mathcal{C}]{inb()} s_4
+   \xrightarrow[]{status \neq 0x0c} s_7 \xrightarrow[\mathcal{C}]{inb()} s_{10} \rightarrow
+   s_{11} \rightarrow s_{12}$  & $s_2 \xrightarrow[\mathcal{C}]{inb()} s_4\;\; uart\_{rx}$
+   \\ 
+   & $s_7 \xrightarrow[]{outb()} s_{10}\;\; uart\_{rx}$ \\  \hline
+   
+   $s_1 \xrightarrow[]{\neg irq_o} s_3 \xrightarrow[]{wb\_{idle()}}
+   s_5 \xrightarrow[]{wb\_{idle()}} s_8 \rightarrow
+   s_{12}$ & $s_3 \xrightarrow[]{wb\_{idle()}} s_5\;\; uart\_{top}$ \\ 
+   & $s_5 \xrightarrow[]{wb\_{idle()}} s_8\;\; uart\_{top}$ \\  \hline
+\end{tabular}
+}
+\end{center}
+\caption{\scriptsize Firmware Transactions and its interacting HW transaction}
+\label{table:stats}
+\end{table}  
+%
+This interaction behavior can be analysed 
+to produce a sequential single-threaded co-verification model. 
 
 
-\textbf{Step 3: Constructing Co-verification Model}
+
+\textbf{Step 3: Co-verification Model}
 An unified co-verification model is constructed by sequentializing 
 HW and its interacting FW threads, thereby generating a sequential 
-single-threaded co-verification model in C.  The motivation behind
-sequentialization is based on our observation that many practical industrial
-co-designs exhibit producer-consumer interaction behavior, such as IBM 
-Text Accelerator co-design~\cite{polig2014micro,polig2014fpl}, 
-IBM coherent FFT coprocessor~\cite{giefers2015accelerating}, RockBox 
-Media Player~\cite{hvc}, linux device driver interacting with QEMU emulated
-hardware code~\cite{codes14} and others.  We observe that in practise, a FW 
-thread is mostly independent of the HW thread they interact with~\cite{hvc,codes14}.  
-Specifically, a FW thread is only responsible for configuring the 
-HW transactions by writing to memory mapped registers or polling 
-the interrupt status register for data transmission or receiving 
-incoming data packets. This interaction pattern exhibits producer-consumer 
-relationship, which is also evident in case of our UART example in 
-Figure~\ref{fig:interleaving1}.  
+single-threaded co-verification model in C.  
 %
 We now formally define a single-threaded sequential co-verification model, 
 denoted by $\mathcal{M}_{seq}$, obtained by sequentializing the HW and FW 
