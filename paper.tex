@@ -162,8 +162,9 @@ description language (HDL) such as Verilog/VHDL is a challenging task due to
 few reasons -- 1) the timing and semantic mismatch between the synchronous
 clock-driven HW model and asynchronous event-driven SW model -- for example,
 FW running on a processor could be much faster than the HW
-model it interacts with, 2) lack of co-specification model that precisely
-captures the design intent of the communication between HW and FW, 3) Large
+model it interacts with, 2) lack of support for property specification in 
+HW/FW co-designs that can precisely capture the design intent of the 
+communication between HW and FW, 3) Large
 number of interleavings between HW and FW threads, and 4) lack 
 of automated formal tools that support co-designs implemented in C/C++ and 
 Verilog/VHDL.   In this paper, we address some of these challenges to enable
@@ -181,9 +182,10 @@ and not a TLM.}  and FW models.  Most of the existing techniques
 in~\cite{fmsd02,emsoft07,fase10} for constructing a unified FW-HW model are not 
 useful in practise for three reasons -- 1) use of abstract HW models 
 instead of register-transfer level implementation, 2) the HW-FW model
-construction is agnostic to the underlying reasoning engine, 3) does not
-leverage the co-specification model, hence ineffective for practical
-co-verification.  We will call the unified FW-HW model as \emph{co-verification model}. 
+construction is agnostic to the underlying reasoning engine, and 3) 
+does not leverage the property specification over HW-FW boundary, hence 
+ineffective for practical co-verification.  We will call the unified FW-HW 
+model as \emph{co-verification model}. 
 
 In this paper, we present two different approaches for automatic formal
 verification of HW/SW co-designs -- \emph{monolithic} and \emph{path-based}.  
@@ -348,6 +350,12 @@ $next\_timeframe()$ functions, used in $wb$ functions, are
 firmware primitives that direct our tool to set the inputs to the HW signals 
 and advance the HW clock, respectively.
 
+\textbf{Interface functions} The \emph{interface functions} are lowest level of 
+implementation in a FW model that directly read from or write to the HW ports. 
+For example, the interface functions in figure~\ref{firmware} are the $wb$ class
+of functions that directly wiggles the input/output ports of UART HW.
+
+
 \textbf{Hardware Model} Figure~\ref{fig:interleaving2} shows a fragment of the state machine 
 implementation of the UART hardware RTL.  The UART IP contains a
 \emph{transmitter} module, a \emph{receiver} module and a \emph{clock
@@ -359,7 +367,8 @@ received data in the {\em loopback} mode.  To do so, we annotate the FW model
 with an assertion $assert()$, as shown in Figure~\ref{firmware}.  Note that the 
 array containers $rx\_b$ and $tx\_b$ stores the data obtained through the $inb$
 and $outb$ function calls which directly read from and write to the UART IP ports
-respectively. \rmcmt{more on co-specification PSL}. 
+respectively. Section~\ref{property} describes the property specification in
+HW-FW co-designs in more details. 
 \[
   for(i=0; i<=N; i++) 
    \quad assert(rx\_b[i] == tx\_b[i]);
@@ -615,7 +624,7 @@ is a radically new but promising approach for synthesizing software
 models from RTL description, mainly targeted for word-level formal hardware 
 verification using software verification techniques such as abstract 
 satisfaction~\cite{leo-thesis}.  To the best of our knowledge, this is the first 
-attempt that demonstrate the efficacy of such translation in the context of 
+attempt to demonstrate the efficacy of such translation in the context of 
 hardware/software co-verification. 
 % 
 A \textit{software netlist} $\mathcal{SN}$ is defined as follows:
@@ -776,9 +785,9 @@ in column 1 shows the events in $\mathcal{FT}$ and the letter below the
 arrows denotes the event type, producer $(\mathcal{P})$ or consumer 
 $(\mathcal{C})$. Arrows with empty description below denotes reading of interface
 variables or local variables in $\mathcal{FT}$.  Arrows with no description
-simply denotes control-flow with no events.  The entires in the right column of
-Table~\ref{transaction} shows the corresponding transaction in HW modules. We
-simply denote a transaction in HW module with the name of the module,
+simply denotes control-flow join.  The entries in the right column of
+Table~\ref{transaction} shows the corresponding transactions in HW.  We 
+denote a transaction in HW module with the name of the module,
 transmitter module in UART ($uart\_tx$), receiver module in UART ($uart\_rx$), or
 the top UART module ($uart\_top$).
 %
@@ -817,14 +826,18 @@ the top UART module ($uart\_top$).
 
 
 \textbf{Step 3: Co-verification Model}
+%
 An unified co-verification model is constructed through appropriate composition of 
 FW and its interacting HW threads.  This is done by instrumenting the 
 software netlist model of HW RTL inside the FW thread at every invocation 
-of the interface functions.  This leads to a single-threaded sequential
-co-verification model in C.  
+of the $next\_timeframe()$ primitive in the interface functions.  Recall that a
+call to $next\_timeframe()$ is used to advance the HW clock by one cycle. A call
+to the software netlist emulates the same effect.  Furthermore, a software
+netlist is a sequential model of the HW RTL represented in C.  Thus, the
+composition leads to a single-threaded sequential co-verification model in C.  
 %
 We now formally define a our co-verification model, denoted by 
-$\mathcal{M}_{seq}$.\rmcmt{refer moduleName} as software netlist.
+$\mathcal{M}_{seq}$.
 %
 \[ 
 \begin{array}[t]{@{}lll}
@@ -840,12 +853,12 @@ over variables $Var$ of $\mathcal{M}_{seq}$ such that $(exp \in Exp)$ and
 $(b \in BExp)$. A $\mathit{CStatement}$ is an assignment,
 conditional, sequential concatenation or a loop.
 $\mathit{moduleName(Var_1,\dots,Var_n)}$ invokes the top level 
-procedure of the $\mathcal{SN}$. Recall that $\mathcal{SN}$ is a
-software netlist representation of HW RTL models.
-The interface variables $\{Var\_1,\dots,Var\_n\}$ 
+procedure of $\mathcal{SN}$, which is also the top level 
+module of the HW RTL, since the translation from RTL to software preserves
+the module hierarchy.  The interface variables $\{Var\_1,\dots,Var\_n\}$ 
 (input, output and inout ports) are declared inside the 
-FW to communicate with $\mathcal{SN}$. \rmcmt{explain instrumentation with
-diagram} \\ 
+FW to communicate with $\mathcal{SN}$.  Figure~\ref{compose} shows the 
+composition of $\mathcal{SN}$ and FW thread for the UART IP.
 %
 
 \textbf{Step 4: Property Driven Slicing of Co-verification Model}
@@ -898,7 +911,7 @@ The hardware and firmware run independently of each other.
 The communication between them takes place through these function calls. 
 }
 %===============================================================================
-\section{Property Specification for Co-verification}
+\section{Property Specification for Co-verification}\label{property}
 %===============================================================================
 Lack of support for property specification in a HW/SW co-design is one of the
 stumbling blocks for the application of formal techniques in co-verification.  
