@@ -291,17 +291,19 @@ verification task.
 In this paper, we make the following contributions:
 \begin{enumerate}
   
-  \item We present two approaches for formal hardware/software co-verification
+  \item \textbf{Monolithic versus Path-based:} We present two approaches for formal hardware/software co-verification
     -- 1) A \emph{monolithic} approach that clearly separates the symbolic
     execution of HW and FW model and generate a monolithic SAT query for 
     verification purpose, 2) A \emph{path-based} approach that constructs
     an unified sequential co-verification model from HW and FW models and
     generates multiple SAT queries that encodes relevant scenario/transaction 
-    pairs using symbolic execution.  To the best of our knowledge, this is the 
-    first attempt to synthesize a pure software co-verification model from
-    C/RTL co-designs specifically targeted for formal analysis.   
+    pairs using symbolic execution.  
+    
+    To the best of our knowledge, this is the first attempt to synthesize a pure 
+    software co-verification model from C/RTL co-designs specifically targeted 
+    for formal analysis.   
   
-  \item We present an automatic HW/SW co-verifcation tool called, \hwcbmcv,
+  \item \textbf{Co-verification Tools:} We present an automatic HW/SW co-verification tool called, \hwcbmcv,
     which follows the monolithic verification technique.  Our path-based 
     approach is implemented in a tool called, \verifox. Both tools can handle
     co-designs where the hardware is implemented in Verilog RTL (IEEE
@@ -311,8 +313,8 @@ In this paper, we make the following contributions:
     benchmarks in Verilog RTL and C models 
     here~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a2c\&usp=sharing}. 
 
-   \item We present an unified property specification language for
-     co-verification that allows engineers to write meaningful 
+  \item \textbf{Property Specification Language:} We present an unified property
+    specification language for co-verification that allows engineers to write meaningful 
      formal co-specification over hardware and firmware events and specify
      temporal correlation between these events.  Our tool also supports a
      fragment of IEEE Property Specification Language. 
@@ -352,7 +354,7 @@ implementation of the UART hardware RTL.  The UART IP contains a
 generator}.  The update of state elements (\emph{registers}) and 
 \emph{wires} are shown in rectangular boxes and rounded boxes respectively.  
 
-\textbf{Co-specification Model} We verify that the transmitted data is the same as the 
+\textbf{Co-design Property} We verify that the transmitted data is the same as the 
 received data in the {\em loopback} mode.  To do so, we annotate the FW model 
 with an assertion $assert()$, as shown in Figure~\ref{firmware}.  Note that the 
 array containers $rx\_b$ and $tx\_b$ stores the data obtained through the $inb$
@@ -363,12 +365,14 @@ respectively. \rmcmt{more on co-specification PSL}.
    \quad assert(rx\_b[i] == tx\_b[i]);
 \]
 %
+\section{Scenario and Transaction}
+%
 We formally describe the notion of \emph{transaction} and \emph{scenario} with the
 help of our working example. \\
 %
 \begin{figure}[t]
 \scriptsize
-\begin{tabular}{l|l}
+\begin{tabular}{|l|l|}
 \hline
 Wishbone Interface & Main Module \\
 \hline
@@ -643,7 +647,7 @@ Verilog RTL circuit containing an always block and continuous
 assignment statement and the equivalent software netlist in C.
 %
 \begin{figure*}[t]
-%\scriptsize  
+\scriptsize  
 \centering
 \begin{tabular}{|l|l|l|l|}
 \hline
@@ -742,6 +746,8 @@ $V'$ written by the execution of $\mathcal{HT}$ are disjoint
 of $\mathcal{FT}$ and $\mathcal{HT}$ consumes values 
 in $V'$ and $V$, respectively.
 %
+
+
 Figure~\ref{fig:interleaving1} illustrates the producer-consumer relationship 
 in UART IP. The FW CFG is shown in the left and the 
 HW RTL code snippet is shown in the right. We abuse notations and 
@@ -779,7 +785,7 @@ the top UART module ($uart\_top$).
 \begin{table}
 \begin{center}
 {
- %\scriptsize
+ \scriptsize
 \begin{tabular}{|c|c|c|}
 \hline
   Firmware & Hardware  \\
@@ -859,7 +865,7 @@ is then passed to the symbolic execution engine for path-based exploration. \\
 \begin{figure}[t]
 \begin{center}
 \includegraphics[scale=0.6]{figures/traditional_flow.pdf}
-\caption{Conventional HW/SW Co-verification Flow}
+\caption{Monolithic HW/SW Co-verification Flow}
 \label{fig:conventional}
 \end{center}
 \end{figure}
@@ -975,7 +981,7 @@ software netlist model is approximately 1100 LOC.
 \begin{table}
 \begin{center}
 {
-%\scriptsize
+\scriptsize
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
   Circuit & Verilog & Latches(L)/ & Input & Output & GATE & Firmware \\
@@ -1006,23 +1012,6 @@ can receive interrupt from the transmitter or receiver module depending on
 whether the transmitter buffer is empty or the receiver buffer is full
 respectively, hence the control is non-deterministic in this mode.
 %
-\textbf{Firmware Hardware Interaction Pattern in UART}
-Figure~\ref{fig:interleaving1} illustrates the FW-HW interaction pattern 
-for the UART IP. The FW CFG is shown in the left and the 
-HW RTL code snippet is shown in the right. We abuse notations and 
-represent $\mathcal{HT}$ in the form of RTL and $\mathcal{FT}$ as CFG
-for our illustration purpose. Here, $\mathcal{HT}$ is the producer of interrupt 
-status signal, $irq\_o$, which is read by $\mathcal{FT}$ in state $s_1$. 
-The signal $irq\_o$ is  triggered when transmitter buffer is 
-{\em EMPTY} or receiver buffer is {\em FULL}. 
-$\mathcal{HT}$ also produces interrupt status by writing to the 
-memory mapped register, $UART\_IS$, which is consumed by 
-$\mathcal{FT}$ in state $s_2$.  In another interaction, $\mathcal{HT}$
-sends a data-packet to $UART\_TR$ which is consumed by $\mathcal{FT}$ in state $s_7$.
-Similarly, $\mathcal{FT}$ is the producer of $data$, $(outb(data,UART\_TR))$, 
-in state $s_6$ which is consumed by $\mathcal{HT}$. Thus, the interaction
-pattern between $\mathcal{HT}$ and $\mathcal{FT}$ clearly exhibits producer-consumer
-relationship. This enables us to sequentialize the HW and FW thread. \\
 \rmcmt{stats in a table, remove klee result, SoC diagram}
 \textbf{\emph{Discussion:}}
 Table~\ref{table:safe} reports the run times for bounded safety proofs of
@@ -1095,7 +1084,7 @@ to MiniSAT. So, we do not report the verification with SMT solvers.   }
 \begin{table*}
 \begin{center}
 {
-%\begin{scriptsize}
+\begin{scriptsize}
 \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|}
 \hline
   & Bound & \multicolumn{3}{c|}{Monolithic} & \multicolumn{5}{c|}{Path-based} \\ 
@@ -1128,7 +1117,7 @@ transmit (64) & 520 & 31.35 & 29.70 & 113.57 & 1.18 & 27.13 & 247104/362 & 99.85
 loopback (64) & 1300 & 443.15 & 427.68 & TO & 492.59 & 54.23 & 247104/2566 &
 98.96 & \textbf{62}.\textbf{34} \\ \hline
 \end{tabular}
-%\end{scriptsize}
+\end{scriptsize}
 }
 \end{center}
 \vspace{-1.3mm}
