@@ -830,10 +830,13 @@ the top UART module ($uart\_top$).
 An unified co-verification model is constructed through appropriate composition of 
 FW and its interacting HW threads.  This is done by instrumenting the 
 software netlist model of HW RTL inside the FW thread at every invocation 
-of the $next\_timeframe()$ primitive in the interface functions.  Recall that a
-call to $next\_timeframe()$ is used to advance the HW clock by one cycle. A call
-to the software netlist emulates the same effect.  Furthermore, a software
-netlist is a sequential model of the HW RTL represented in C.  Thus, the
+of the $next\_timeframe()$ primitive in interface functions.  Recall that a
+call to $next\_timeframe()$ is used to advance the HW clock by one cycle.  A call
+to the software netlist emulates the effect of one clock period in the RTL 
+model. That is, the state of state holding elements (registers) and combinational 
+elements (wires) are uniform in software netlist and RTL model after every invocation of 
+$next_timeframe()$.  Furthermore, a software
+netlist is a sequential model of HW RTL which is represented in C.  Thus, the
 composition leads to a single-threaded sequential co-verification model in C.  
 %
 We now formally define a our co-verification model, denoted by 
@@ -889,19 +892,31 @@ is then passed to the symbolic execution engine for path-based exploration. \\
 \end{center}
 \end{figure}
 %
-Figure~\ref{fig:conventional} illustrates the conventional approach to HW/SW
-co-veri\-fi\-cation, as implemented in the state-of-the-art co-verification
-tool, \hwcbmcv~\cite{CKY03,vlsid13}.  \hwcbmcv is the only open-source
-formal co-verification tool that supports Verilog RTL (System Verilog 2009
-standard) and C/C++ firmware.  In contrast to our proposed approach,
+Figure~\ref{fig:conventional} illustrates the monolithic approach to HW/SW
+co-veri\-fi\-cation, as implemented in \hwcbmcv.  
+%\hwcbmcv is the only open-source
+%formal co-verification tool that supports Verilog RTL (System Verilog 2009
+%standard) and C/C++ firmware.  
+In contrast to path-based approach,
 \hwcbmcv maintains two separate flows for HW and FW.  The top flow in
 Figure~\ref{fig:conventional} uses synthesis to obtain either a bit-level or
-a word-level netlist from Verilog RTL.  The bottom flow illustrates the
-translation of the C program into static single assignment (SSA) form. 
+a word-level netlist from Verilog RTL.  A bit-level netlist is represented 
+in And Inverter Graph (AIG) format.  Whereas, a word-level netlist is represented 
+in format that resembles SMT-LIB standards.  The bottom flow illustrates the
+translation of C program into static single assignment (SSA) form. 
+Synthesizing netlist from RTL is a standard technique which is widely 
+used in hardware model checkers~\cite{}. Similarly, translating a C program 
+into a SSA representation is a standard technique which is widely used in 
+software verification tools, such as CBMC~\cite{}, 2LS~{}. 
 These two flows meet only at the solver.  Thus, \hwcbmcv generates a
-monolithic formula from the C and RTL description, which is then checked
-with SAT/SMT solvers.  \hwcbmcv provides specific handshake primitives such
+unified monolithic co-verification model from AIG and SSA which is 
+represented in Conjunctive Normal Form (CNF).  This model is then used to perform 
+bounded model checking~\cite{} using the underlying SAT/SMT solvers.  
+\hwcbmcv provides specific handshake primitives such
 as $next\_timeframe()$ and $set\_inputs()$ to model FW-HW communications.
+
+
+
 \rmcmt{
 To this end, \hwcbmcv constructs a co-verification model through 
 in tandem symbolic execution of the HW and FW models.  A bit-level 
