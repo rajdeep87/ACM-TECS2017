@@ -643,7 +643,7 @@ Verilog RTL circuit containing an always block and continuous
 assignment statement and the equivalent software netlist in C.
 %
 \begin{figure*}[t]
-\scriptsize  
+%\scriptsize  
 \centering
 \begin{tabular}{|l|l|l|l|}
 \hline
@@ -682,8 +682,7 @@ endmodule
 struct state_elements_top {
  unsigned int b, d, e; };
 struct state_elements_top  u1;
-void top(unsigned int clk, 
-   unsigned int a) {
+void top(_Bool clk, unsigned a) {
   _Bool c,cond;
   _Bool b_old=u1.b, d_old=u1.d;
   _Bool e_old=u1.e;
@@ -694,7 +693,8 @@ void top(unsigned int clk,
     u1.e = b_old;
   else
     u1.e = 0;
-  u1.d = c;  }
+  u1.d = c;  
+}
 \end{lstlisting}
 \\
 \hline
@@ -778,7 +778,8 @@ the top UART module ($uart\_top$).
 %
 \begin{table}
 \begin{center}
-{\scriptsize
+{
+ %\scriptsize
 \begin{tabular}{|c|c|c|}
 \hline
   Firmware & Hardware  \\
@@ -803,16 +804,18 @@ the top UART module ($uart\_top$).
 \end{tabular}
 }
 \end{center}
-\caption{\scriptsize Firmware Transactions and its interacting HW transaction}
+\caption{Firmware Transactions and its interacting HW transaction}
 \label{transaction}
 \end{table}  
 %
 
 
 \textbf{Step 3: Co-verification Model}
-An unified co-verification model is constructed by instrumenting  
-the software netlist model of HW RTL inside the FW thread, thereby 
-generating a sequential single-threaded co-verification model in C.  
+An unified co-verification model is constructed through appropriate composition of 
+FW and its interacting HW threads.  This is done by instrumenting the 
+software netlist model of HW RTL inside the FW thread at every invocation 
+of the interface functions.  This leads to a single-threaded sequential
+co-verification model in C.  
 %
 We now formally define a our co-verification model, denoted by 
 $\mathcal{M}_{seq}$.\rmcmt{refer moduleName} as software netlist.
@@ -835,7 +838,8 @@ procedure of the $\mathcal{SN}$. Recall that $\mathcal{SN}$ is a
 software netlist representation of HW RTL models.
 The interface variables $\{Var\_1,\dots,Var\_n\}$ 
 (input, output and inout ports) are declared inside the 
-FW to communicate with $\mathcal{SN}$. \\ 
+FW to communicate with $\mathcal{SN}$. \rmcmt{explain instrumentation with
+diagram} \\ 
 %
 
 \textbf{Step 4: Property Driven Slicing of Co-verification Model}
@@ -970,7 +974,8 @@ software netlist model is approximately 1100 LOC.
 %
 \begin{table}
 \begin{center}
-{\scriptsize
+{
+%\scriptsize
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
   Circuit & Verilog & Latches(L)/ & Input & Output & GATE & Firmware \\
@@ -983,7 +988,7 @@ software netlist model is approximately 1100 LOC.
 \end{tabular}
 }
 \end{center}
-\caption{\scriptsize Design statistics for UART IP and SoC Design}
+\caption{Design statistics for UART IP and SoC Design}
 \label{table:stats}
 \end{table}  
 %
@@ -1090,7 +1095,7 @@ to MiniSAT. So, we do not report the verification with SMT solvers.   }
 \begin{table*}
 \begin{center}
 {
-\begin{scriptsize}
+%\begin{scriptsize}
 \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|}
 \hline
   & Bound & \multicolumn{3}{c|}{Monolithic} & \multicolumn{5}{c|}{Path-based} \\ 
@@ -1123,7 +1128,7 @@ transmit (64) & 520 & 31.35 & 29.70 & 113.57 & 1.18 & 27.13 & 247104/362 & 99.85
 loopback (64) & 1300 & 443.15 & 427.68 & TO & 492.59 & 54.23 & 247104/2566 &
 98.96 & \textbf{62}.\textbf{34} \\ \hline
 \end{tabular}
-\end{scriptsize}
+%\end{scriptsize}
 }
 \end{center}
 \vspace{-1.3mm}
@@ -1169,7 +1174,7 @@ appropriate memory-mapped registers in the FW.
 \begin{table*}
 \begin{center}
 {
-\begin{scriptsize}
+%\begin{scriptsize}
 \begin{tabular}{|l|l|l|l|l|l|l|l|}
 \hline
   & Bound & \multicolumn{3}{c|}{Monolithic} & \multicolumn{3}{c|}{Path-based} \\ 
@@ -1190,7 +1195,7 @@ data\_transfer & 20 & 92.63 & 91.28 & 95.76 & 5.68 & 28.14 &
 \textbf{1}.\textbf{27} \\ 
 \hline
 \end{tabular}
-\end{scriptsize}
+%\end{scriptsize}
 }
 \end{center}
 \vspace{-1.3mm}
@@ -1252,13 +1257,15 @@ therefore difficult to solve.
 The primary motivation for constructing a sequential single threaded unified 
 co-verification model is to avoid enumerating exponential number of interleavings 
 between the HW and FW threads.  We have shown that this is extremely beneficial for 
-co-designs that exhibits producer-consumer relationship.  To this end, we construct 
-a sequential co-verification model in \verifox through appropriate composition of 
-HW and FW threads.  Our path-based algorithm in \verifox is able to suitably exploit 
+co-designs that exhibits producer-consumer relationship.  
+In particular, our path-based algorithm in \verifox is able to suitably exploit 
 this interaction behavior in a sequential co-verification model through symbolic 
-execution by generating relevant scenario/transaction pairs.  However, this approach 
+execution which generates relevant scenario/transaction pairs.  However, this approach 
 is not applicable for co-designs that exhibits true concurrency~\cite{concurrency}, 
 that is, a FW its interacting HW threads does not show producer-consumer relationship.  
+In this case, it is imperative to consider all possible interleavings between
+these threads in some effecient manner.  However, our experience is that such 
+co-designs occurs rarely in practise. 
 
 
 % ===============================================================================
