@@ -888,6 +888,48 @@ The hardware and firmware run independently of each other.
 The communication between them takes place through these function calls. 
 }
 %===============================================================================
+\section{Property Specification for Co-verification}
+%===============================================================================
+Lack of support for property specification in a HW/SW co-design is one of the
+stumbling blocks for the application of formal techniques in co-verification.  
+In this paper, we express a co-design property in C 
+with the support of special primitive, called {\em next\_timeframe()}, 
+that can express temporal correlation between HW and FW events. 
+In this paper, we classify co-design properties into two 
+classes -- {\em transaction-level} property and {\em component-level} property.
+%-------------------------------------------------------------------------------
+\subsection{Transaction-level Property}
+%-------------------------------------------------------------------------------
+A {\em Transaction-level} property ($\psi_{t}$) formally captures the 
+design intent of the interaction between a $\mathcal{ST}$ and $\mathcal{HT}$, 
+that is, it is defined at the transaction boundaries.  
+Recall that a $\mathcal{ST}$ is a service in response to some external environment 
+or HW interrupts (for example acknowledgement or exceptions). Similarly, 
+$\mathcal{HT}$ is a finite-length service in response to some SW events or 
+other HW events. 
+
+Thus, a transaction-level property follows implication structure -- the 
+antecedent of the implication is an event in $\mathcal{ST}$ or 
+$\mathcal{HT}$ and the consequent is an event in $\mathcal{HT}$ 
+or $\mathcal{ST}$ respectively.  An event in $\mathcal{ST}$ may be 
+a function call or an update to program variables. Similarly, an event in 
+$\mathcal{HT}$ corresponds to an update of combinational or sequential 
+elements. \rmcmt{example} 
+
+%-------------------------------------------------------------------------------
+\subsection{Component-level Property}
+%-------------------------------------------------------------------------------
+A {\em component-level} property ($\psi_{c}$) is defined purely at the 
+level of individual components of a co-design system. Recall that a component 
+may be a HW model, a SW model or an interface model which contains only the 
+interface logic.  A component-level property captures the design intent of a 
+component in terms of its input/output behaviors.  This type of property 
+is useful in a co-design environment for verifying individual components.   
+Note that unlike the structure of $\psi_{t}$ which requires the antecedent 
+or consequent to be a HW or SW event,  $\psi_{c}$ only contains signals 
+(ports) or variables of a particular component. \rmcmt{example} 
+ 
+%===============================================================================
 \section{Experimental Results}
 %===============================================================================
 %
@@ -1207,6 +1249,16 @@ therefore difficult to solve.
 % ===============================================================================
 \section{Limitations of Proposed Approach}
 % ===============================================================================
+The primary motivation for constructing a sequential single threaded unified 
+co-verification model is to avoid enumerating exponential number of interleavings 
+between the HW and FW threads.  We have shown that this is extremely beneficial for 
+co-designs that exhibits producer-consumer relationship.  To this end, we construct 
+a sequential co-verification model in \verifox through appropriate composition of 
+HW and FW threads.  Our path-based algorithm in \verifox is able to suitably exploit 
+this interaction behavior in a sequential co-verification model through symbolic 
+execution by generating relevant scenario/transaction pairs.  However, this approach 
+is not applicable for co-designs that exhibits true concurrency~\cite{concurrency}, 
+that is, a FW its interacting HW threads does not show producer-consumer relationship.  
 
 
 % ===============================================================================
