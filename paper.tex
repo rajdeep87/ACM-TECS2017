@@ -331,7 +331,7 @@ In this paper, we make the following contributions:
 \section{Working Example}
 %{\bf Running example: }
 %===============================================================================
-In this section, we present an working example of FW and HW model to explain our 
+In this section, we present a working example of FW and HW model to explain our 
 co-verification methodologies.  
 
 \textbf{Firmware Model} Figure~\ref{firmware} gives a fragment of a FW model for a Universal 
@@ -368,7 +368,7 @@ with an assertion $assert()$, as shown in Figure~\ref{firmware}.  Note that the
 array containers $rx\_b$ and $tx\_b$ stores the data obtained through the $inb$
 and $outb$ function calls which directly read from and write to the UART IP ports
 respectively. Section~\ref{property} describes the property specification in
-HW-FW co-designs in more details. 
+HW-FW co-designs in more detail. 
 \[
   for(i=0; i<=N; i++) 
    \quad assert(rx\_b[i] == tx\_b[i]);
@@ -376,7 +376,7 @@ HW-FW co-designs in more details.
 %
 \section{Scenario and Transaction}
 %
-We formally describe the notion of \emph{transaction} and \emph{scenario} with the
+We describe the notion of \emph{transaction} and \emph{scenario} with the
 help of our working example. \\
 %
 \begin{figure}[t]
@@ -470,11 +470,11 @@ for(i=0; i<=10; i++)
 
 
 \textbf{Scenario ($\mathcal{S}$):}
-Let $B$ denote a set of all possible behaviors of a system. A scenario is a set of 
+Let $B$ denote the set of all possible behaviors of a system. A scenario is a set of 
 constraints $\mathcal{S}$ that restrict the system behaviors
 to $B' \subseteq B$. For example, the left hand side of Figure~\ref{fig:st} 
 gives an example scenario for the UART FW shown in Figure~\ref{firmware}. 
-Here, $\mathcal{S}$ configure the UART IP in {\em loopback} mode with 
+Here, $\mathcal{S}$ configures the UART IP in {\em loopback} mode with 
 interrupt enabled.
 
 \Omit{ 
@@ -497,20 +497,20 @@ instance of a use case.
 \textbf{Firmware Transaction ($\mathcal{FT}$):} 
 A Firmware Transaction ($\mathcal{FT}$) is an untimed state machine 
 with a start state and an end state, which is similar to the notion of 
-transactions in TLM~\cite{codes14}. 
-Each transition in $\mathcal{FT}$ is guarded with a quantifier free predicates
+a transaction in TLM~\cite{codes14}. 
+Each transition in $\mathcal{FT}$ is guarded with a quantifier free predicate
 over FW variables and HW signals.
-If the guard evaluates to $TRUE$, it may perform some action, which may be 
+If the guard evaluates to $TRUE$, it may perform some action, which may  
 read/write data. If the guard is not specified, it is assumed to be $TRUE$.
 $\mathcal{FT}$ is often manifested as control-flow paths in the firmware. 
 The right hand side of Figure~\ref{fig:st} gives a 
 $\mathcal{FT}$ for the UART firmware code shown in Figure~\ref{firmware}. 
 It has a start state and an end state. $\mathcal{FT}$ is triggered from 
 UART output signal, $irq_o$. An execution of $\mathcal{FT}$, also called a 
-FW transaction instance, takes a simple path from start state to end state. 
+FW transaction instance, takes a simple path from the start state to the end state. 
 The path taken by an execution is determined by the state of 
 the FW variables or its interacting HW signals. Repeated execution of 
-$\mathcal{FT}$ can happen only in a sequential manner.  
+$\mathcal{FT}$ can happen only in a sequential manner \sjcmt{not clear what this means}.  
  
 \textbf{Hardware Transaction ($\mathcal{HT}$):} 
 Let us consider a HW RTL design with \textit{input} $\{I\}$, 
@@ -522,7 +522,7 @@ All state elements are fixed-width unsigned integers.
 
 Let $\mathcal{G}$ be the set of quantifier free boolean predicates over 
 state elements, $\{Reg\}$, $\{Mem\}$, $\{Wire\}$.  
-A {\em transaction step}, $\varphi$, is defined by 2 tuple,
+A {\em transaction step}, $\varphi$, is defined by a 2-tuple,
 $\varphi \equiv \langle \Gamma_{\varphi}, \Delta_{\varphi} \rangle$, where 
 $\Gamma_{\varphi} \equiv \{\alpha_1, \alpha_2, \ldots \alpha_{m}\}$
 is a set of concurrent state updates to $\{Reg\}$, $\{Mem\}$, $\{Wire\}$ 
@@ -532,7 +532,7 @@ and $\Delta_{\varphi} \equiv \{\beta_1, \beta_2, \ldots \beta_{n}\} \subseteq
 A {\em Hardware Transaction} $(\mathcal{HT}) = (V, \Sigma, \rightarrow, init,
 comp)$ is a labelled transition system, where $V$ is a set of transaction steps
 $\varphi$ with a unique source vertex, $init \in V$, and a unique sink vertex, 
-$comp \in V$, $\Sigma$ is a set of labels such that $\Sigma \subseteq 2^{G}$ and  
+$comp \in V$, $\Sigma$ is a set of labels such that $\Sigma \subseteq 2^{G}$ \sjcmt{2 power G may not be required, just G may be sufficient as it is closed under disjunction, conjunction and negation} and  
 $\rightarrow \subseteq V \times \Sigma \times V$ is a set of labelled
 transitions.
 
