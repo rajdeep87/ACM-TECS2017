@@ -953,11 +953,11 @@ In this paper, we express a co-design property in C
 with the support of special primitive, called {\em next\_timeframe()}, 
 that can express temporal correlation between HW and FW events. 
 In this paper, we classify co-design properties into two 
-classes -- {\em transaction-level} property and {\em component-level} property.
+classes -- {\em transaction level} property and {\em component level} property.
 %-------------------------------------------------------------------------------
-\subsection{Transaction-level Property}
+\subsection{Transaction level Property}
 %-------------------------------------------------------------------------------
-A {\em Transaction-level} property ($\psi_{t}$) formally captures the 
+A {\em Transaction level} property ($\psi_{t}$) formally captures the 
 design intent of the interaction between a $\mathcal{ST}$ and $\mathcal{HT}$, 
 that is, it is defined at the transaction boundaries.  
 Recall that a $\mathcal{ST}$ is a service in response to some external environment 
@@ -965,18 +965,49 @@ or HW interrupts (for example acknowledgement or exceptions). Similarly,
 $\mathcal{HT}$ is a finite-length service in response to some SW events or 
 other HW events. 
 
-Thus, a transaction-level property follows implication structure -- the 
+Thus, a transaction level property follows implication structure -- the 
 antecedent of the implication is an event in $\mathcal{ST}$ or 
 $\mathcal{HT}$ and the consequent is an event in $\mathcal{HT}$ 
 or $\mathcal{ST}$ respectively.  An event in $\mathcal{ST}$ may be 
 a function call or an update to program variables. Similarly, an event in 
 $\mathcal{HT}$ corresponds to an update of combinational or sequential 
-elements. \rmcmt{example} 
+elements. Table~\ref{figure:transaction} shows few examples of transaction 
+level property, written as monitors in C, for the UART IP.  In $monitor_P1()$, 
+$outb(UART\_TR,0x0c)$ is a FW event and $ack\_o$ is a HW event. Whereas in
+$monitor_P2$, the antecedent $tx\_empty()$ is a HW event and $send_data$ is a FW
+event. 
+%
+\begin{figure}[htbp]
+\scriptsize
+\begin{tabular}{l|l}
+\hline
+\multicolumn{2}{c}{Monitors (in C)}
+\\
+\hline
+\begin{lstlisting}[mathescape=true,language=C,moredelim={[is][keywordstyle]{@@}{@@}}]
+int monitor_P1() { 
+ if(outb(UART_TR,0x0c)){
+  next_timeframe();
+  assert(@@ ack_o==1 @@);}}
+\end{lstlisting} 
+&
+\begin{lstlisting}[mathescape=true,language=C,moredelim={[is][keywordstyle]{@@}{@@}}]
+int monitor_P2() { 
+ assert(!tx_empty() || 
+ (@@(send_data&0x1)==1)@@);
+}
+\end{lstlisting} \\ 
+\hline
+\end{tabular}
+\caption{Transaction-level property as monitor (in C)}
+\label{figure:transaction}
+\end{figure}
+%
 
 %-------------------------------------------------------------------------------
-\subsection{Component-level Property}
+\subsection{Component level Property}
 %-------------------------------------------------------------------------------
-A {\em component-level} property ($\psi_{c}$) is defined purely at the 
+A {\em component level} property ($\psi_{c}$) is defined purely at the 
 level of individual components of a co-design system. Recall that a component 
 may be a HW model, a SW model or an interface model which contains only the 
 interface logic.  A component-level property captures the design intent of a 
@@ -1133,7 +1164,7 @@ MiniSAT~2.2.0 in the backend.
 experiments with Z3 and observe higher verification times for Z3 compared 
 to MiniSAT. So, we do not report the verification with SMT solvers.   }
 
-\begin{table*}
+\begin{table}
 \begin{center}
 {
 \begin{scriptsize}
@@ -1174,7 +1205,7 @@ loopback (64) & 1300 & 443.15 & 427.68 & 247104/2566 & 98.96 & \textbf{62}.\text
 %\vspace{-1.3mm}
 \caption{Bounded safety proof times for HW/SW co-verification of UART 
 \label{table:safe}}
-\end{table*}
+\end{table}
 
 %-------------------------------------------------------------------------------
 \subsection{FW-HW Co-verification of System-on-Chip}
@@ -1185,20 +1216,24 @@ loopback (64) & 1300 & 443.15 & 427.68 & 247104/2566 & 98.96 & \textbf{62}.\text
 We obtained an open source SoC design
 from~\cite{DBLP:conf/fmcad/SubramanyanVRM15}.  It consists of an 8051
 micro-controller, a memory arbiter, an external memory (XRAM) and
-cryptographic accelerators.  The SoC is implemented in approximately~3000
-lines of Verilog RTL, which generate several thousand gates.  The
-accelerator implements encryption/decryption using the Advanced Encryption
+cryptographic accelerators.  The design statistics for SoC is given in
+
+Table~\ref{table:stats}.  
+The accelerator implements encryption/decryption using the Advanced Encryption
 Standard (AES) and is obtained
 from~\href{http://www.opencores.org}{http://www.opencores.org}.  There is a
 separate module that interfaces the AES to the 8051 micro-controller using a
-memory-mapped I/O interface.  The micro-con\-tro\-ller communicates with the
+memory-mapped I/O interface.  The micro-controller communicates with the
 accelerators and the XRAM by reading or writing to XRAM addresses.  The
-arbitration of these module is done by the memory arbiter module.  We
-synthesized the SoC to a software netlist (in C) using {\em v2c}.  The
-generated model is bit-precise as well as cycle accurate.  The size of the
+arbitration of these module is done by the memory arbiter module.  
+
+\Omit{
+We synthesized the SoC to a software netlist (in C).  The generated model 
+is bit-precise as well as cycle accurate.  The size of the
 software netlist is approximately~3200 LOC.  The combinatorial exchanges
 between the memory arbiter, XRAM and the AES module is modelled
-appropriately in the software netlist.  \\
+appropriately in the software netlist.
+}
 
 \textbf{\emph{About the firmware:}}
 %
@@ -1211,37 +1246,35 @@ accelerators use direct memory access to fetch the data from the external
 memory.  The completion of the operation is determined by polling the
 appropriate memory-mapped registers in the FW.
 
-\begin{table*}
+\begin{table}
 \begin{center}
 {
 %\begin{scriptsize}
-\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\begin{tabular}{|l|l|l|l|l|}
 \hline
-  & Bound & \multicolumn{3}{c|}{Monolithic} & \multicolumn{3}{c|}{Path-based} \\ 
-\cline{3-8}
- Scenario &  & \multicolumn{2}{c|}{HW-CBMC} & CBMC & Klee & Symbiotic & VerifOx \\ 
-\cline{3-8}
-      &       &  Bit-level & Word-level & $\mathcal{PN}$ & $\mathcal{PN}$ & $\mathcal{PN}$ & $\mathcal{PN}$ \\
-\cline{1-8}
-      &       &   Time     &   Time      & Time  &  Time & Time & Time \\
-\cline{1-8}      
-\multicolumn{8}{|c|}{non-deterministic data and non-deterministic control (safe)} \\ \hline
-data\_transfer & 20 & 86.92 & 86.23 & 104.25 & 25.98 & 29.36 &
-\textbf{17}.\textbf{42} \\ 
+  & Bound & \multicolumn{2}{c|}{Monolithic} & \multicolumn{1}{c|}{Path-based} \\ 
+\cline{3-5}
+ Scenario &  & \multicolumn{2}{c|}{\hwcbmcv} & \verifox \\ 
+\cline{3-5}
+      &       &  Bit-level & Word-level & $\mathcal{M}_{seq}$ \\
+\cline{1-5}
+      &       &   Time     &   Time     & Time \\
+\cline{1-5}      
+\multicolumn{5}{|c|}{non-deterministic data and non-deterministic control (safe)} \\ \hline
+data\_transfer & 20 & 86.92 & 86.23 & \textbf{17}.\textbf{42} \\ 
 \hline
-\multicolumn{8}{|c|}{non-deterministic data and non-deterministic control
+\multicolumn{5}{|c|}{non-deterministic data and non-deterministic control
 (unsafe)} \\ \hline
-data\_transfer & 20 & 92.63 & 91.28 & 95.76 & 5.68 & 28.14 &
-\textbf{1}.\textbf{27} \\ 
+data\_transfer & 20 & 92.63 & 91.28 & \textbf{1}.\textbf{27} \\ 
 \hline
 \end{tabular}
 %\end{scriptsize}
 }
 \end{center}
-\vspace{-1.3mm}
+%\vspace{-1.3mm}
 \caption{Bounded safety proof times for HW/SW co-verification of a SoC 
 \label{table:SoC}}
-\end{table*}
+\end{table}
 
 \textbf{\emph{Discussion of the result:}}
 %
