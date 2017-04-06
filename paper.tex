@@ -175,15 +175,15 @@ seamless adoption of formal techniques in hardware/software co-verification.
  %                     Handling Semantic Gap  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Generating a unified FW-HW model for co-verification is a 
-well-known phenomenon to handle the semantic mismatch between the 
+well-known phenomenon to handle the semantic mismatch between  
 HW~\footnote{Note that whenever we refer to ``hardware'' 
 from this point onwards, we mean an RTL implementation 
 and not a TLM.}  and FW models.  Most of the existing techniques 
 in~\cite{fmsd02,emsoft07,fase10} for constructing a unified FW-HW model are not 
 useful in practise for three reasons -- 1) use of abstract HW models 
-instead of register-transfer level implementation, 2) the HW-FW model
+instead of RTL implementation, 2) the HW-FW model
 construction is agnostic to the underlying reasoning engine, and 3) 
-does not leverage the property specification over HW-FW boundary, hence 
+it does not leverage the property specification over HW-FW boundary, hence 
 ineffective for practical co-verification.  We will call the unified FW-HW 
 model as \emph{co-verification model}. 
 
@@ -193,16 +193,16 @@ We embody these techniques in our tools, \hwcbmcv and \verifox, respectively.
 
 
 A desirable characteristic of a co-verification model is the ability to exploit 
-the expressivity of the underlying reasoning engines.  To this end, \hwcbmcv
-constructs either a bit-level co-verification model that are checked with a SAT solvers 
-or a word-level model that are checked with SMT solvers.  Whereas, a 
+the expressiveness of the underlying reasoning engines.  To this end, \hwcbmcv
+constructs either a bit-level co-verification model that is checked with a SAT solver 
+or a word-level model that is checked with an SMT solver.  Whereas, a 
 co-verification model in \verifox is constructed 
 by first translating the RTL description into a software representation in C,
 called \emph{software netlist}, which is then followed by sequentializing the FW 
 model and the software netlist model.  This results in a single
 threaded sequential co-verification model which is represented in C. A path-wise 
 symbolic execution is then performed over the co-verification model to
-automatically mine relevant interaction behaviors between the FW and HW models.   
+automatically mine relevant interactions between the FW and HW models.   
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
