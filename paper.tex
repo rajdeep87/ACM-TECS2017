@@ -607,7 +607,7 @@ subsequent section, we describe each step in details.\\
 \begin{figure}[t]
 %\centering
 \scalebox{.48}{\import{figures/}{work-flow.pspdftex}}
-\caption{Path-based HW/SW Co-verification Flow in \verifox
+\caption{\small Path-based HW/SW Co-verification Flow in \verifox
 \label{proposed-flow}}
 \end{figure}
 %
@@ -887,7 +887,7 @@ is then passed to the symbolic execution engine for path-based exploration. \\
 \begin{figure}[t]
 \begin{center}
 \includegraphics[scale=0.6]{figures/traditional_flow.pdf}
-\caption{Monolithic HW/SW Co-verification Flow in \hwcbmcv}
+\caption{\small Monolithic HW/SW Co-verification Flow in \hwcbmcv}
 \label{fig:conventional}
 \end{center}
 \end{figure}
@@ -1014,7 +1014,10 @@ co-designs written in C and Verilog RTL. In this paper, we address this gap.
 transmission and reception of data which provides serial communication
 capabilities with a modem or other external devices.  The UART IP is
 compliant with industry standards for UART and interfaces with the wishbone
-bus.  The core supports single transmission/reception format which is
+bus.  The design statistics for UART is shown in Table~\ref{table:stats}.
+
+\Omit{
+The core supports single transmission/reception format which is
 1~start bit, 1~stop bit and 8~data bits without parity.  It also contains a
 single transmit/receive buffer.  The UART IP implements a baud rate
 generation circuit based on a harmonic frequency synthesizer that support a
@@ -1024,6 +1027,7 @@ The UART is obtained from~\url{http://www.opencores.org}.  A software
 netlist model (in C) is synthesized from the UART RTL using \emph{v2c}.  The
 software netlist model is approximately 1100 LOC.
 \rmcmt{refer stats table}
+}
 %
 \begin{table}
 \begin{center}
@@ -1059,7 +1063,6 @@ can receive interrupt from the transmitter or receiver module depending on
 whether the transmitter buffer is empty or the receiver buffer is full
 respectively, hence the control is non-deterministic in this mode.
 %
-\rmcmt{stats in a table, remove klee result, SoC diagram}
 \textbf{\emph{Discussion:}}
 Table~\ref{table:safe} reports the run times for bounded safety proofs of
 FW-HW interaction properties of the UART IP core.  Column~1 in
@@ -1067,15 +1070,14 @@ Table~\ref{table:safe} gives the name of the scenario -- transmission
 without interrupt (transmit), transmission with interrupt (trans\_intr) and
 loopback mode (loopback).  Column~2 gives the maximum loop bound in the
 firmware.  Column~3~and~4 present the co-verification times using \hwcbmcv
-at the bit-level and word-level.  Column~5,6,7~and~10 give the verification
-times for the corresponding unified program netlist model using \cbmcv,
-\klee, \textsc{symbiotic} and \verifox, respectively.  Column~8~and~9 report
+at the bit-level and word-level.  Column~7 gives the verification
+times using \verifox.  Column~5~and~6 report
 the total/feasible path counts and the percentage of infeasible paths pruned
-for each mode.  The focus of our experiment is to demonstrate the
-scalability of path-based techniques over monolithic BMC instances for
-effectively pruning infeasible FW-HW interactions with respect to a
-scenario.  This is demonstrated by the \%-age of pruned paths (reported in
-column~9) for each scenario.
+for each mode.  The focus of our experiment is to compare the performance of 
+path-based techniques over monolithic BMC. 
+%effectively pruning infeasible FW-HW interactions with respect to a
+%scenario.  is demonstrated by the \%-age of pruned paths (reported in
+%column~9) for each scenario.
 
 \textbf{\emph{Safety properties:}}
 We verify several properties of the FW-HW interactions of UART IP. 
@@ -1089,7 +1091,9 @@ the memory-mapped registers.  In Scenario~C, we verified whether the transmitted
 data matches the data received when the UART is configured in loopback
 mode.\\ 
 \textbf{\emph{Detecting UART bugs:}}
-We found several bugs in the open source UART IP. 
+We found several bugs in the open source UART IP obtained from~\url{http://www.opencores.org}.  
+The bottom part of Table~\ref{table:safe} reports the verification
+times for detecting data-path and control-path bugs in UART IP.  
 The bug in the UART data-path is manifested in the transmission mode when no
 interrupt is enabled.  The bug occurs when the transmitted data overlaps
 with the start and stop bits resulting in incorrect bit pattern in the
@@ -1098,7 +1102,7 @@ during transmission mode, the bug in the control-path of the transmitter
 module is triggered which deactivates the transmitter $empty$ signal.  This
 illegally prevents any transmitter interrupt to occur even when the
 transmitter buffer is empty, thereby violating the data transfer protocol. 
-On the other hand, the control bug occurs in the loopback mode only when the
+On the other hand, the \emph{control bug} occurs in the loopback mode only when the
 data is present at the receiver buffer but the $data\_present$ signal is
 never asserted, as a result of which the receiver interrupt is never issued
 in the FW. Thus, the transmitted data is not the same as the received
@@ -1107,22 +1111,23 @@ data in loopback mode leading to a control bug.
 Table~\ref{table:safe} shows that path-based symbolic execution dominates
 monolithic BMC in all scenarios (marked bold).  The average speedup for
 proving safety properties is on average $21\times$ for \verifox over
-\hwcbmcv.  \verifox also outperforms \klee for most configurations in
+\hwcbmcv.  The average speedup for detecting bugs is $48\times$ on average 
+for \verifox over \hwcbmcv.  Thus, \verifox outperforms \hwcbmcv 
+in all scenarios. 
+
+\Omit{
+\verifox also outperforms \klee for most configurations in
 Scenario~A and Scenario~C.  In Scenario~B, \klee marginally wins over
 \verifox by a fraction of a second.  \cbmcv performs poorly for most
 scenarios, which is mostly attributed to higher loop bound ($>500$) in the
 FW, thereby causing \cbmcv to get stuck in unwinding the program netlist
-model.  The bottom part of Table~\ref{table:safe} reports the verification
-times for detecting data-path and control-path bugs in UART IP.  The result
-shows that \verifox is the fastest in detecting both the data-path and
-control-flow bugs for all scenarios.  The average speedup for detecting bugs
-is $48\times$ on average for \verifox over \hwcbmcv.
+model.  
 
 Note that both \klee and \verifox were run with the same configurations --
 depth-first exploration strategy, eager infeasibility check, and incremental
 solving.  \klee uses the STP theorem prover, whereas \verifox uses
 MiniSAT~2.2.0 in the backend.
-
+}
 \Omit
 {Besides SAT backend, \verifox also have a SMT backend. We ran our 
 experiments with Z3 and observe higher verification times for Z3 compared 
@@ -1132,42 +1137,41 @@ to MiniSAT. So, we do not report the verification with SMT solvers.   }
 \begin{center}
 {
 \begin{scriptsize}
-\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|}
+\begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
-  & Bound & \multicolumn{3}{c|}{Monolithic} & \multicolumn{5}{c|}{Path-based} \\ 
-\cline{3-10}
- Scenario &  & \multicolumn{2}{c|}{HW-CBMC} & CBMC & Klee & Symbiotic & \multicolumn{3}{c|}{VerifOx} \\ 
-\cline{3-10}
-      &       &  Bit-level & Word-level & $\mathcal{PN}$ & $\mathcal{PN}$ & $\mathcal{PN}$ & Total/Feasible & \%-age & SAT \\
-\cline{1-7}
-      &       &   Time     &   Time      & Time  &  Time & Time & Paths & Pruning & Time \\
-\cline{1-10}      
-\multicolumn{10}{|c|}{non-deterministic data but deterministic control (Scenario A)} \\ \hline
-transmit (32) & 250 & 15.02 & 15.78 & 108.25 & \textbf{0}.\textbf{98} & 29.36 & 247104/224 & 99.90 & 1.13 \\ 
-transmit (64) & 500 & 23.87 & 23.29 & 206.89 & 1.68 & 29.90 & 247104/324 & 99.86 & \textbf{1}.\textbf{61}  \\ \hline 
-\multicolumn{10}{|c|}{non-deterministic data and non-deterministic control
+  & Bound & \multicolumn{2}{c|}{Monolithic} & \multicolumn{3}{c|}{Path-based} \\ 
+\cline{3-7}
+ Scenario &  & \multicolumn{2}{c|}{HW-CBMC} & \multicolumn{3}{c|}{VerifOx} \\ 
+\cline{3-7}
+      &       &  Bit-level & Word-level & Total/Feasible & \%-age & $\mathcal{M}_{seq}$  \\
+%\cline{1-7}
+      &       &   Time     &   Time      & Paths & Pruning & Time \\
+\cline{1-7}      
+\multicolumn{7}{|c|}{non-deterministic data but deterministic control (Scenario A)} \\ \hline
+  transmit (32) & 250 & 15.02 & 15.78 & 247104/224 & 99.90 & \textbf{1}.{13} \\ 
+transmit (64) & 500 & 23.87 & 23.29 & 247104/324 & 99.86 & \textbf{1}.\textbf{61}  \\ \hline 
+\multicolumn{7}{|c|}{non-deterministic data and non-deterministic control
 (Scenario B)} \\ \hline
-trans\_intr (32) & 250 & 14.86 & 15.98 & 69.19 & \textbf{1}.\textbf{15} & 29.53 & 247104/295 & 99.88 & 1.49 \\
-trans\_intr (64) & 500 & 24.14 & 26.42 & 117.73 & \textbf{1}.\textbf{27} & 29.58 & 247104/362 & 99.85 & 1.81 \\ \hline
-\multicolumn{10}{|c|}{non-deterministic data and non-deterministic control
+  trans\_intr (32) & 250 & 14.86 & 15.98 & 247104/295 & 99.88 & \textbf{1}.{49} \\
+  trans\_intr (64) & 500 & 24.14 & 26.42 & 247104/362 & 99.85 & \textbf{1}.{81} \\ \hline
+\multicolumn{7}{|c|}{non-deterministic data and non-deterministic control
 (scenario C)} \\ \hline
-loopback (8)  & 230 & 52.06 & 55.71 & 1289.85 & 10.76 & 29.01 & 247104/354 & 99.85 & \textbf{3}.\textbf{95} \\ 
-loopback (16) & 500 & 122.12 & 147.65 & 5410.18 & 32.24 & 29.04 & 247104/690 & 99.72 & \textbf{12}.\textbf{89} \\ 
-loopback (32) & 650 & 170.62 & 192.35 & TO & 112.32 & 28.27 & 247104/1282 & 99.48 & \textbf{21}.\textbf{85}   \\ 
-loopback (64) & 1300 & 409.71 & 445.66 & TO & 494.25 & 56.71 & 247104/2566 & 98.96 & \textbf{62}.\textbf{31}  \\ \hline
-\multicolumn{10}{|c|}{detecting data-path bugs in transmission mode w/o interrupt} \\ \hline
-transmit (64) & 520 & 28.43 & 28.14 & 186.99 & \textbf{0}.\textbf{96} & 26.67 &
-247104/324 & 99.86 & 1.12 \\ \hline
-\multicolumn{10}{|c|}{detecting control bugs with interrupt enabled} \\ \hline
-transmit (64) & 520 & 31.35 & 29.70 & 113.57 & 1.18 & 27.13 & 247104/362 & 99.85 & \textbf{1}.\textbf{05} \\ \hline
-\multicolumn{10}{|c|}{detecting control bugs in loopback mode} \\ \hline
-loopback (64) & 1300 & 443.15 & 427.68 & TO & 492.59 & 54.23 & 247104/2566 &
-98.96 & \textbf{62}.\textbf{34} \\ \hline
+loopback (8)  & 230 & 52.06 & 55.71 & 247104/354 & 99.85 & \textbf{3}.\textbf{95} \\ 
+loopback (16) & 500 & 122.12 & 147.65 & 247104/690 & 99.72 & \textbf{12}.\textbf{89} \\ 
+loopback (32) & 650 & 170.62 & 192.35 & 247104/1282 & 99.48 & \textbf{21}.\textbf{85}   \\ 
+loopback (64) & 1300 & 409.71 & 445.66 & 247104/2566 & 98.96 & \textbf{62}.\textbf{31}  \\ \hline
+\multicolumn{7}{|c|}{detecting data-path bugs in transmission mode w/o interrupt} \\ \hline
+  transmit (64) & 520 & 28.43 & 28.14 & 247104/324 & 99.86 &
+  \textbf{1}.\textbf{12} \\ \hline
+\multicolumn{7}{|c|}{detecting control bugs with interrupt enabled} \\ \hline
+transmit (64) & 520 & 31.35 & 29.70 & 247104/362 & 99.85 & \textbf{1}.\textbf{05} \\ \hline
+\multicolumn{7}{|c|}{detecting control bugs in loopback mode} \\ \hline
+loopback (64) & 1300 & 443.15 & 427.68 & 247104/2566 & 98.96 & \textbf{62}.\textbf{34} \\ \hline
 \end{tabular}
 \end{scriptsize}
 }
 \end{center}
-\vspace{-1.3mm}
+%\vspace{-1.3mm}
 \caption{Bounded safety proof times for HW/SW co-verification of UART 
 \label{table:safe}}
 \end{table*}
