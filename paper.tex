@@ -618,13 +618,13 @@ translated into a word level C program, called a
 semantics \sjcmt{ref for synthesis semantics?}. The software netlist model is cycle-accurate as well as 
 bit-precise~\footnote{http://www.cprover.org/hardware/v2c/}. The 
 translation automatically handles concurrent statements 
-in Verilog such as procedural blocks and continuous assignments, multiple always
-blocks, multiple modules and translates them into an equivalent C program.  This
+in Verilog such as procedural blocks and continuous assignments, multiple {\em always}
+blocks, multiple modules, and translates them into an equivalent \sjcmt{we should specify equivalent in what sense} C program.  This
 is a radically new but promising approach for synthesizing software 
-models from RTL description, mainly targeted for word-level formal hardware 
+models from RTL description, primarily targeted for word-level formal hardware 
 verification using software verification techniques such as abstract 
-satisfaction~\cite{leo-thesis}.  To the best of our knowledge, this is the first 
-attempt to demonstrate the efficacy of such translation in the context of 
+satisfaction\sjcmt{?}~\cite{leo-thesis}.  To the best of our knowledge, this is the first 
+attempt to demonstrate the efficacy of such a translation in the context of 
 hardware/software co-verification. 
 % 
 A \textit{software netlist} $\mathcal{SN}$ is defined as follows:
@@ -647,13 +647,13 @@ Bool \lor Bool \mid \\
 \end{array}
 \]
 %
-Here, $\mathit{In}$, $\mathit{Out}$, $\mathit{Seq}$, $\mathit{Comb}$
-are programs variables that model \emph{input}, \emph{output}, 
+Here, $\mathit{In}$ \sjcmt{this is missing from the def}, $\mathit{Out}$, $\mathit{Seq}$, $\mathit{Comb}$
+are program variables that model \emph{input}, \emph{output}, 
 \emph{sequential/state-holding} and \emph{combinational/stateless} 
 signals in the circuit.  $Asgn$ is a finite set of assignments 
 to $Out$, $Seq$ and $Comb$. Figure~\ref{ex1} shows an example of 
-Verilog RTL circuit containing an always block and continuous
-assignment statement and the equivalent software netlist in C.
+Verilog RTL circuit containing an {\em always} block and continuous
+assignment statements, and the equivalent software netlist in C.
 %
 \begin{figure*}[t]
 \scriptsize  
