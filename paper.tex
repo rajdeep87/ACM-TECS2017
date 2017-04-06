@@ -820,7 +820,7 @@ the top UART module ($uart\_top$).
 \end{tabular}
 }
 \end{center}
-\caption{Firmware Transactions and its interacting HW transaction}
+\caption{\small Firmware Transactions and interacting HW transactions}
 \label{transaction}
 \end{table}  
 %
@@ -1150,7 +1150,7 @@ FW only exercises the transmitter module by appropriately configuring
 the memory-mapped registers.  In Scenario~C, we verified whether the transmitted
 data matches the data received when the UART is configured in loopback
 mode.\\ 
-\textbf{\emph{Detecting UART bugs:}}
+\textbf{\emph{Bug Finding:}}
 We found several bugs in the open source UART IP obtained from~\url{http://www.opencores.org}.  
 The bottom part of Table~\ref{table:safe} reports the verification
 times for detecting data-path and control-path bugs in UART IP.  
@@ -1337,7 +1337,7 @@ non-deterministic data transmitted through $outb()$ is the same
 the data received through $inb()$.  We also verify that
 reading/writing to the appropriate memory-mapped registers produce the
 correct result during the data transmission phase.\\ 
-\textbf{\emph{Detecting SoC bugs:}} We found one critical \emph{control bug} 
+\textbf{\emph{Bug Finding:}} We found one critical \emph{control bug} 
 in the SoC design.  The bug is manifested when memory arbiter hardware 
 wrongly arbitrates the port selection thereby forcing the write strobe 
 for the external RAM to be LOW.  This violates the data transfer protocol 
