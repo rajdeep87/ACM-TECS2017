@@ -157,14 +157,14 @@ is executed correctly together with the RTL.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %                    Challenges in Co-verification 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The verification of FW given in C/C++ together with the RTL given in a hardware
-description language (HDL) such as Verilog/VHDL is a challenging task due to 
+The verification of a FW given in C/C++ together with an RTL given in a hardware
+description language (HDL) such as Verilog/VHDL is a challenging task due to a
 few reasons -- 1) the timing and semantic mismatch between the synchronous
-clock-driven HW model and asynchronous event-driven SW model -- for example,
+clock-driven HW model and asynchronous event-driven SW model. For example, the
 FW running on a processor could be much faster than the HW
 model it interacts with, 2) lack of support for property specification in 
 HW/FW co-designs that can precisely capture the design intent of the 
-communication between HW and FW, 3) Large
+communication between HW and FW, 3) large
 number of interleavings between HW and FW threads, and 4) lack 
 of automated formal tools that support co-designs implemented in C/C++ and 
 Verilog/VHDL.   In this paper, we address some of these challenges to enable
