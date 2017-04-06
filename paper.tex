@@ -1429,24 +1429,30 @@ a unified co-verification model.
 %===============================================================================
 \section{Concluding Remarks}
 %===============================================================================
-\rmcmt{
-In this paper, we presented a novel HW/SW co-verification tool, \verifox,
-for C-based FW and hardware models given in Verilog RTL.  We presented a
-notion of transaction in joint RTL and FW models.  We showed that the
-interaction pattern between FW and HW transactions can be exploited to
-generate a unified co-verification model.  To this end, we presented a
-path-based symbolic execution technique to automatically infer
-scenario/transaction pairs from a co-verification model.  Our general observation
-is that monolithic BMC based approaches cannot exploit these interactions
-and thus generate very complex formulas, which are difficult to solve. 
+%
+In this paper, we presented two approaches for verification of 
+HW/SW co-designs using formal techniques.  These approaches are 
+embodied in our tool \hwcbmcv and \verifox.  We presented a 
+notion of scenario and transaction for effective verification 
+of co-designs.  To this end, we presented a path-based algorithm
+to automatically mine scenario/transaction pairs.  We showed that 
+the construction of a co-verification model must leverage specification of 
+co-design properties over hardware and firmware events in order to 
+successfully apply formal methods in co-verification.  To enable this, we 
+presented two types of co-design properties, \emph{transaction level} and 
+\emph{component level}.  Our tools support co-designs written in Verilog RTL 
+and C.   
+
+Our general observation is that monolithic BMC based approaches 
+cannot prune irrelevant transactions with respect to a given scenario, 
+and hence generate very complex formulas, which are difficult to solve. 
 Owing to specific optimizations in \verifox such as eager path pruning
 combined with incremental SAT solving, we experimentally show that \verifox
-is an order of magnitude faster than the state-of-the-art HW/SW
-co-verification tool, \hwcbmcv.  We demonstrate applicability of our
-approach for proving safety as well as finding FW-HW bugs for a UART IP and
-a SoC design.  In the future, we plan to extend our framework to FW-HW
-models that exhibit further interaction patterns.
-}
+is an order of magnitude faster than the \hwcbmcv.  We demonstrate applicability of our
+approach for proving safety as well as finding critical co-design bugs for 
+a UART IP and a complex SoC design.  In the future, we plan to extend our 
+framework to co-design models that exhibit further interaction patterns.
+
 %\bibliographystyle{ACM-Reference-Format}
 \bibliographystyle{abbrv}
 \bibliography{biblio} 
