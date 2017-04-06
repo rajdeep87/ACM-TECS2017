@@ -109,7 +109,7 @@ the RTL that follow transaction boundaries by means of path-based symbolic
 simulation with custom path-pruning.  We have implemented this approach in
 our tool \verifox.  We have experimentally compared \verifox with a
 conventional approach, which constructs a single monolithic SAT/SMT
-instance, and observe speedups of an order of magnitude over conventional 
+instance, and observe speedup of an order of magnitude over conventional 
 approach for proving safety properties as well as detecting firmware/hardware bugs.
 %
 \end{abstract}            
@@ -150,21 +150,21 @@ In the post-RTL phase, when the RTL design is available, hardware/software
 co-verification becomes more complex.  Unlike the TLM, which only captures
 limited design functionality, the RTL implements cycle-accurate behavior
 of the final HW, and addresses concerns related to power, area and
-timing.  Verification is mandatory to assert that the driver or firmware (FW) 
-is executed correctly together with the RTL.  The effectiveness of testing 
-is thus severely limited in post-RTL co-verification.
+timing.  The effectiveness of testing 
+is thus severely limited in post-RTL co-verification. Verification is mandatory to ensure that the driver or firmware (FW) 
+is executed correctly together with the RTL.  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %                    Challenges in Co-verification 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The verification of FW given in C/C++ together with the RTL given in a hardware
-description language (HDL) such as Verilog/VHDL is a challenging task due to 
+The verification of a FW given in C/C++ together with an RTL given in a hardware
+description language (HDL) such as Verilog/VHDL is a challenging task due to a
 few reasons -- 1) the timing and semantic mismatch between the synchronous
-clock-driven HW model and asynchronous event-driven SW model -- for example,
+clock-driven HW model and asynchronous event-driven SW model. For example, the
 FW running on a processor could be much faster than the HW
 model it interacts with, 2) lack of support for property specification in 
 HW/FW co-designs that can precisely capture the design intent of the 
-communication between HW and FW, 3) Large
+communication between HW and FW, 3) large
 number of interleavings between HW and FW threads, and 4) lack 
 of automated formal tools that support co-designs implemented in C/C++ and 
 Verilog/VHDL.   In this paper, we address some of these challenges to enable
@@ -175,15 +175,15 @@ seamless adoption of formal techniques in hardware/software co-verification.
  %                     Handling Semantic Gap  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Generating a unified FW-HW model for co-verification is a 
-well-known phenomenon to handle the semantic mismatch between the 
+well-known phenomenon to handle the semantic mismatch between  
 HW~\footnote{Note that whenever we refer to ``hardware'' 
 from this point onwards, we mean an RTL implementation 
 and not a TLM.}  and FW models.  Most of the existing techniques 
 in~\cite{fmsd02,emsoft07,fase10} for constructing a unified FW-HW model are not 
 useful in practise for three reasons -- 1) use of abstract HW models 
-instead of register-transfer level implementation, 2) the HW-FW model
+instead of RTL implementation, 2) the HW-FW model
 construction is agnostic to the underlying reasoning engine, and 3) 
-does not leverage the property specification over HW-FW boundary, hence 
+it does not leverage the property specification over HW-FW boundary, hence 
 ineffective for practical co-verification.  We will call the unified FW-HW 
 model as \emph{co-verification model}. 
 
@@ -193,16 +193,16 @@ We embody these techniques in our tools, \hwcbmcv and \verifox, respectively.
 
 
 A desirable characteristic of a co-verification model is the ability to exploit 
-the expressivity of the underlying reasoning engines.  To this end, \hwcbmcv
-constructs either a bit-level co-verification model that are checked with a SAT solvers 
-or a word-level model that are checked with SMT solvers.  Whereas, a 
+the expressiveness of the underlying reasoning engines.  To this end, \hwcbmcv
+constructs either a bit-level co-verification model that is checked with a SAT solver 
+or a word-level model that is checked with an SMT solver.  Whereas, a 
 co-verification model in \verifox is constructed 
 by first translating the RTL description into a software representation in C,
 called \emph{software netlist}, which is then followed by sequentializing the FW 
 model and the software netlist model.  This results in a single
 threaded sequential co-verification model which is represented in C. A path-wise 
 symbolic execution is then performed over the co-verification model to
-automatically mine relevant interaction behaviors between the FW and HW models.   
+automatically mine relevant interactions between the FW and HW models.   
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -220,14 +220,14 @@ readily used in assertion-based verification.  Closest to our
 unified property specification for co-verification is the language
 \textit{xPSL}~\cite{xPSL} proposed by Xie et al., which is the extension of IEEE PSL.  
 Note that the co-verification models in \hwcbmcv and \verifox are fully compliant 
-with our specification language, hence easily verifiable.  
+with our specification language, hence easily amenable to verification.
 %
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %       Scenario, Transaction and Scenario/Transaction Pair
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-A firmware only exercise some fragment of hardware state-space in a typical 
+A firmware only exercises a fraction of the hardware state-space in a typical 
 hardware/software
 co-design~\cite{polig2014micro,polig2014fpl,giefers2015accelerating}.  
 A firmware services the requests from the application software 
@@ -243,12 +243,12 @@ machine that is manifested as control-flow paths in the FW, similar to
 transactions in TLM~\cite{codes14}.  A~{\em scenario} $(\mathcal{S})$ in a
 co-design typically configures the co-verification environment in a way that
 restricts the interaction between $\mathcal{FT}$ and $\mathcal{HT}$.  In
-other words, given a scenario $\mathcal{S}$, the FW only exercises a fragment
+other words, given a scenario $\mathcal{S}$, the FW exercises only a fragment
 of the HW state-space.  This renders many interactions between
 $\mathcal{HT}$ and $\mathcal{FT}$ infeasible. For example, a scenario in 
 \emph{Universal Asynchronous Receiver Transmitter} (UART) IP can configure the 
 UART in \emph{transmitter} mode which restricts the communication between the FW 
-and HW to set of services that only transfers data from the FW to the serial output 
+and HW to set of services that only transfer data from the FW to the serial output 
 port of the transmitter HW while completely bypassing the receiver HW.  
 A {\em Scenario/Transaction} pair is a set of valid interactions between 
 $\mathcal{HT}$ and $\mathcal{FT}$ for a particular scenario~$\mathcal{S}$.  
@@ -265,7 +265,7 @@ execution in \verifox can automatically infer such Scenario/Transaction
 pairs and check their validity using backend solvers.  We experimentally 
 show that for building an effective and scalable formal co-verification tool, 
 it is imperative to automatically mine only relevant scenario/transaction 
-pairs that occurs in practical co-design environment. 
+pairs that occur in practical co-design environment. 
 %
 
 
@@ -277,12 +277,12 @@ which interleaves asynchronously. It is well recognized that concurrency is at
 the heart of co-verification. The number of interleavings between the FW
 and HW threads can be large, which can become a bottleneck in the
 verification process.  
-However, we observe that in practise that, industrial co-designs exhibits 
+However, we observe that in practice, industrial co-designs exhibit 
 producer-consumer
-relationship~\cite{polig2014micro,polig2014fpl,giefers2015accelerating} --
+relationships~\cite{polig2014micro,polig2014fpl,giefers2015accelerating} --
 the master module (producer) solely updates the shared registers which are
 consumed by the slave (consumer).  This key observation allows us to
-sequentialize concurrent FW and HW models following specific interaction
+sequentialize concurrent FW and HW models \sjcmt{transactions instead of models?} that follow specific interaction
 patterns.  This drastically reduces the total number of interleavings 
 between a FW and HW threads and simplies the overall complexity of the 
 verification task. 
@@ -309,16 +309,16 @@ In this paper, we make the following contributions:
     which follows the monolithic verification technique.  Our path-based 
     approach is implemented in a tool called, \verifox. Both tools can handle
     co-designs where the hardware is implemented in Verilog RTL (IEEE
-    SystemVerilog 2005 standards) and firmware is  
+    SystemVerilog 2005 standards) and the firmware is  
     specified in ANSI-C (C89, C99 standards).  We distribute the HW/SW 
     co-verification tools, \hwcbmcv and \verifox, along with our co-design 
     benchmarks in Verilog RTL and C models 
     here~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a2c\&usp=sharing}. 
 
-  \item \textbf{Property Specification Language:} We present an unified property
+  \item \textbf{Property Specification Language:} We present a unified property
     specification language for co-verification that allows engineers to write meaningful 
      formal co-specification over hardware and firmware events and specify
-     temporal correlation between these events.  Our tool also supports a
+     temporal correlations between these events.  Our tool also supports a
      fragment of IEEE Property Specification Language. 
      
      %We believe that the formal
