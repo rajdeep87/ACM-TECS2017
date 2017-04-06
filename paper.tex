@@ -109,7 +109,7 @@ the RTL that follow transaction boundaries by means of path-based symbolic
 simulation with custom path-pruning.  We have implemented this approach in
 our tool \verifox.  We have experimentally compared \verifox with a
 conventional approach, which constructs a single monolithic SAT/SMT
-instance, and observe speedups of an order of magnitude over conventional 
+instance, and observe speedup of an order of magnitude over conventional 
 approach for proving safety properties as well as detecting firmware/hardware bugs.
 %
 \end{abstract}            
@@ -150,9 +150,9 @@ In the post-RTL phase, when the RTL design is available, hardware/software
 co-verification becomes more complex.  Unlike the TLM, which only captures
 limited design functionality, the RTL implements cycle-accurate behavior
 of the final HW, and addresses concerns related to power, area and
-timing.  Verification is mandatory to assert that the driver or firmware (FW) 
-is executed correctly together with the RTL.  The effectiveness of testing 
-is thus severely limited in post-RTL co-verification.
+timing.  The effectiveness of testing 
+is thus severely limited in post-RTL co-verification. Verification is mandatory to ensure that the driver or firmware (FW) 
+is executed correctly together with the RTL.  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %                    Challenges in Co-verification 
