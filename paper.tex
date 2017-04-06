@@ -313,7 +313,8 @@ In this paper, we make the following contributions:
     specified in ANSI-C (C89, C99 standards).  We distribute the HW/SW 
     co-verification tools, \hwcbmcv and \verifox, along with our co-design 
     benchmarks in Verilog RTL and C models 
-    here~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a2c\&usp=sharing}. 
+    here~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a2c\&usp=sharing}.\rmcmt{check
+    link}
 
   \item \textbf{Property Specification Language:} We present a unified property
     specification language for co-verification that allows engineers to write meaningful 
@@ -1125,12 +1126,12 @@ the total/feasible path counts and the percentage of infeasible paths pruned
 for each mode.  The focus of our experiment is to compare the performance of 
 path-based techniques over monolithic BMC.\\ 
 \textbf{\emph{Safety properties:}}
-We verify several properties of the FW-HW interactions of UART IP. 
-In Scenario~A and scenario~B, we verified whether
+We verify a total of~17 transaction level properties and~22 component level 
+properties of the UART IP.  Table~\ref{table:safe} reports some of the
+representative properties.  In Scenario~A and scenario~B, we verified whether
 the transmitted data (32-bit or 64-bit) is available through the serial
 output port after a pre-determined number of clock cycles.
-In both of the
-configurations, \verifox is able to prune the receiver logic since the
+In both of the configurations, \verifox is able to prune the receiver logic since the
 FW only exercises the transmitter module by appropriately configuring
 the memory-mapped registers.  In Scenario~C, we verified whether the transmitted
 data matches the data received when the UART is configured in loopback
@@ -1256,10 +1257,10 @@ appropriately in the software netlist.
 
 \textbf{\emph{About the firmware:}}
 %
-The firmware initiates the operation in the SoC by first writing to an
-initial memory-mapped register.  The firmware implements Linux-style $inb()$
+The FW initiates the operation in the SoC by first writing to an
+initial memory-mapped register.  The FW implements Linux-style $inb()$
 and $outb()$ functions calls, which are used to communicate with the HW
-ports.  The firmware writes a sequence of non-deterministic data to the XRAM
+ports.  The FW writes a sequence of non-deterministic data to the XRAM
 port and then reads the data from the same port.  The cryptographic
 accelerators use direct memory access to fetch the data from the external
 memory.  The completion of the operation is determined by polling the
@@ -1298,50 +1299,49 @@ data\_transfer & 20 & 92.63 & 91.28 & \textbf{1}.\textbf{27} \\
 \textbf{\emph{Discussion of the result:}}
 %
 Table~\ref{table:SoC} gives the runtimes for bounded safety proofs of 
-FW-HW interaction properties of the SoC.  Column~1 in
+co-design properties of the SoC.  Column~1 in
 Table~\ref{table:SoC} gives the name of the scenario -- transmission with
-interrupt (data\_transfer).  Column~2 report the maximum loop bound in the
-firmware.  Column~3~and~4 present the co-verification times using \hwcbmcv
-at the bit-level and word-level.  Columns~[5-8] report the
-verification times for the corresponding unified program netlist model using
-\cbmcv, \klee, \textsc{symbiotic} and \verifox, respectively.  
+interrupt (data\_transfer).  Column~2 report the maximum loop bound in the 
+FW.  Column~3~and~4 present the co-verification times using \hwcbmcv
+at the bit-level and word-level, respectively.  Columns~5 report the
+verification time using \verifox.  
 
 \textbf{\emph{Safety properties:}}
 %
-We verify several safety properties for the FW-HW interactions.  We check
+We verify a total of 7 transaction level propertes and 12 
+component level properties for the SoC co-design.  Due to space 
+limitations, we describe some representative properties.  We check
 whether the acknowledgment for data transmission and data reception arrives
 from the micro-controller in the correct cycle.  We verify whether the
 non-deterministic data transmitted through $outb()$ is the same
 the data received through $inb()$.  We also verify that
 reading/writing to the appropriate memory-mapped registers produce the
-correct result during the data transmission phase.\\ \textbf{\emph{Detecting
-SoC bugs:}} We found a control-path bug in the SoC design.  The bug is
-manifested when memory arbiter hardware wrongly arbitrates the port
-selection thereby forcing the write strobe for the external RAM to be LOW. 
-This violates the data transfer protocol in the SoC design.
+correct result during the data transmission phase.\\ 
+
+\textbf{\emph{Detecting SoC bugs:}} We found one critical \emph{control bug} 
+in the SoC design.  The bug is manifested when memory arbiter hardware 
+wrongly arbitrates the port selection thereby forcing the write strobe 
+for the external RAM to be LOW.  This violates the data transfer protocol 
+in the SoC design.
 
 The result in Table~\ref{table:SoC} shows that \verifox is approximately
-$5\times$ faster than \hwcbmcv and $6\times$ faster than \cbmcv for proving
-safety.  For detecting bugs, the speedup is $72\times$ and $75\times$ for
-\verifox over \hwcbmcv and \cbmcv.  However, \verifox marginally wins over
-other path-based tools such as \symbiotic and \klee for safety proofs as
-well as finding bugs. The result shows that the verification times for all
-path-based techniques are comparable.  The reason for better scalability for
-symbolic execution tools compared to \hwcbmcv is attributed to the path-based 
-exploration strategy combined with eager path pruning and incremental SAT
-solving. The FW exercises only the micro-controller
-and transfer sequence of bytes to the XRAM port bypassing peripherals
-connected to other ports such as hardware accelerator.  This scenario
-allows path-based tools to prune the logic for accelerator which otherwise
-could not have been removed by simple property-driven slicing of the
-program netlist.  It is important to note that forward symbolic execution without
+$5\times$ faster than \hwcbmcv for proving safety.  For detecting bugs, 
+the speedup is $72\times$ for \verifox over \hwcbmcv.  
+
+\textbf{\emph{Monolithic versus Path-based:}}
+The reason for better scalability of \verifox compared to 
+\hwcbmcv is attributed to the path-based exploration strategy combined 
+with eager path pruning and incremental SAT solving.  In the case of SoC, 
+the FW exercises only the micro-controller and transfer sequence of bytes to the XRAM port 
+bypassing peripherals connected to other ports such as hardware accelerator.  
+This scenario allows path-based exploration techniques to prune the logic for
+accelerator.  It is important to note that forward symbolic execution without
 these optimizations timeout for all the benchmarks.
 
-By contrast, \hwcbmcv is not able to prune the FW-HW transactions with
+By contrast, \hwcbmcv is not able to prune the irrelevant transactions with
 respect to a scenario due to monolithic BMC based approach.  Hence, \hwcbmcv
 passes extremely complex formulas to the underlying solver, which often
-contain irrelevant logic with respect to a particular scenario and are
-therefore difficult to solve.
+contain irrelevant logic and are therefore difficult to solve.
 
 % ===============================================================================
 \section{Limitations of Proposed Approach}
@@ -1415,9 +1415,9 @@ In this paper, we presented a novel HW/SW co-verification tool, \verifox,
 for C-based FW and hardware models given in Verilog RTL.  We presented a
 notion of transaction in joint RTL and FW models.  We showed that the
 interaction pattern between FW and HW transactions can be exploited to
-generate a unified program netlist model.  To this end, we presented a
+generate a unified co-verification model.  To this end, we presented a
 path-based symbolic execution technique to automatically infer
-scenario/transaction pairs from a program netlist.  Our general observation
+scenario/transaction pairs from a co-verification model.  Our general observation
 is that monolithic BMC based approaches cannot exploit these interactions
 and thus generate very complex formulas, which are difficult to solve. 
 Owing to specific optimizations in \verifox such as eager path pruning
