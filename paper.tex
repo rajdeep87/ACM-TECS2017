@@ -220,14 +220,14 @@ readily used in assertion-based verification.  Closest to our
 unified property specification for co-verification is the language
 \textit{xPSL}~\cite{xPSL} proposed by Xie et al., which is the extension of IEEE PSL.  
 Note that the co-verification models in \hwcbmcv and \verifox are fully compliant 
-with our specification language, hence easily verifiable.  
+with our specification language, hence easily amenable to verification.
 %
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  %       Scenario, Transaction and Scenario/Transaction Pair
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-A firmware only exercise some fragment of hardware state-space in a typical 
+A firmware only exercises a fraction of the hardware state-space in a typical 
 hardware/software
 co-design~\cite{polig2014micro,polig2014fpl,giefers2015accelerating}.  
 A firmware services the requests from the application software 
@@ -243,12 +243,12 @@ machine that is manifested as control-flow paths in the FW, similar to
 transactions in TLM~\cite{codes14}.  A~{\em scenario} $(\mathcal{S})$ in a
 co-design typically configures the co-verification environment in a way that
 restricts the interaction between $\mathcal{FT}$ and $\mathcal{HT}$.  In
-other words, given a scenario $\mathcal{S}$, the FW only exercises a fragment
+other words, given a scenario $\mathcal{S}$, the FW exercises only a fragment
 of the HW state-space.  This renders many interactions between
 $\mathcal{HT}$ and $\mathcal{FT}$ infeasible. For example, a scenario in 
 \emph{Universal Asynchronous Receiver Transmitter} (UART) IP can configure the 
 UART in \emph{transmitter} mode which restricts the communication between the FW 
-and HW to set of services that only transfers data from the FW to the serial output 
+and HW to set of services that only transfer data from the FW to the serial output 
 port of the transmitter HW while completely bypassing the receiver HW.  
 A {\em Scenario/Transaction} pair is a set of valid interactions between 
 $\mathcal{HT}$ and $\mathcal{FT}$ for a particular scenario~$\mathcal{S}$.  
@@ -265,7 +265,7 @@ execution in \verifox can automatically infer such Scenario/Transaction
 pairs and check their validity using backend solvers.  We experimentally 
 show that for building an effective and scalable formal co-verification tool, 
 it is imperative to automatically mine only relevant scenario/transaction 
-pairs that occurs in practical co-design environment. 
+pairs that occur in practical co-design environment. 
 %
 
 
