@@ -1036,7 +1036,7 @@ P3: assert property
 \end{lstlisting}
 &
 \begin{lstlisting}[mathescape=true,language=C]
-int monitor_P3() {
+Bool monitor_P3() {
  assert(!ack || valid);
  next_timeframe();
  next_timeframe();
@@ -1123,7 +1123,7 @@ configure the UART in loopback mode with interrupt logic enabled.  Thus,
 both the transmitter and the receiver are active in this mode.  The firmware
 can receive interrupt from the transmitter or receiver module depending on
 whether the transmitter buffer is empty or the receiver buffer is full
-respectively, hence the control is non-deterministic in this mode.
+respectively, hence the control is non-deterministic in this mode. \\
 %
 \textbf{\emph{Discussion:}}
 Table~\ref{table:safe} reports the run times for bounded safety proofs of
@@ -1248,15 +1248,13 @@ We obtained an open source SoC design
 from~\cite{DBLP:conf/fmcad/SubramanyanVRM15}.  It consists of an 8051
 micro-controller, a memory arbiter, an external memory (XRAM) and
 cryptographic accelerators.  The design statistics for SoC is given in
-
-Table~\ref{table:stats}.  
-The accelerator implements encryption/decryption using the Advanced Encryption
-Standard (AES) and is obtained
-from~\href{http://www.opencores.org}{http://www.opencores.org}.  There is a
-separate module that interfaces the AES to the 8051 micro-controller using a
-memory-mapped I/O interface.  The micro-controller communicates with the
-accelerators and the XRAM by reading or writing to XRAM addresses.  The
-arbitration of these module is done by the memory arbiter module.  
+Table~\ref{table:stats}.  The accelerator implements encryption/decryption 
+using the Advanced Encryption Standard (AES).  There is a separate 
+module that interfaces the AES to the 8051 micro-controller using 
+a memory-mapped I/O interface.  The micro-controller communicates 
+with the accelerators and the XRAM by reading or writing to 
+XRAM addresses.  The arbitration of these module is done by 
+the memory arbiter module.  
 
 \Omit{
 We synthesized the SoC to a software netlist (in C).  The generated model 
