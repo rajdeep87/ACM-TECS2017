@@ -602,7 +602,7 @@ transmitter} as well as {\em receiver} module.
 \subsection{Approach 1: Path-based Co-verification Technique}
 %
 Figure~\ref{proposed-flow} describes our overall tool framework. In the
-subsequent section, we describe each step in details.\\ 
+subsequent section, we describe each step in detail.\\ 
 %
 \begin{figure}[t]
 %\centering
@@ -615,7 +615,7 @@ subsequent section, we describe each step in details.\\
 A hardware circuit in Verilog RTL is automatically 
 translated into a word level C program, called a 
 \textit{software netlist}~\cite{mtk2016,mskm2016,mkm2015} following synthesis 
-semantics. The software netlist model is cycle-accurate as well as 
+semantics \sjcmt{ref for synthesis semantics?}. The software netlist model is cycle-accurate as well as 
 bit-precise~\footnote{http://www.cprover.org/hardware/v2c/}. The 
 translation automatically handles concurrent statements 
 in Verilog such as procedural blocks and continuous assignments, multiple always
