@@ -277,12 +277,12 @@ which interleaves asynchronously. It is well recognized that concurrency is at
 the heart of co-verification. The number of interleavings between the FW
 and HW threads can be large, which can become a bottleneck in the
 verification process.  
-However, we observe that in practise that, industrial co-designs exhibits 
+However, we observe that in practice, industrial co-designs exhibit 
 producer-consumer
-relationship~\cite{polig2014micro,polig2014fpl,giefers2015accelerating} --
+relationships~\cite{polig2014micro,polig2014fpl,giefers2015accelerating} --
 the master module (producer) solely updates the shared registers which are
 consumed by the slave (consumer).  This key observation allows us to
-sequentialize concurrent FW and HW models following specific interaction
+sequentialize concurrent FW and HW models \sjcmt{transactions instead of models?} that follow specific interaction
 patterns.  This drastically reduces the total number of interleavings 
 between a FW and HW threads and simplies the overall complexity of the 
 verification task. 
@@ -309,16 +309,16 @@ In this paper, we make the following contributions:
     which follows the monolithic verification technique.  Our path-based 
     approach is implemented in a tool called, \verifox. Both tools can handle
     co-designs where the hardware is implemented in Verilog RTL (IEEE
-    SystemVerilog 2005 standards) and firmware is  
+    SystemVerilog 2005 standards) and the firmware is  
     specified in ANSI-C (C89, C99 standards).  We distribute the HW/SW 
     co-verification tools, \hwcbmcv and \verifox, along with our co-design 
     benchmarks in Verilog RTL and C models 
     here~\footnote{https://drive.google.com/folderview?id=0BynC6sd-wTYgWVQ4bXNtRDB5a2c\&usp=sharing}. 
 
-  \item \textbf{Property Specification Language:} We present an unified property
+  \item \textbf{Property Specification Language:} We present a unified property
     specification language for co-verification that allows engineers to write meaningful 
      formal co-specification over hardware and firmware events and specify
-     temporal correlation between these events.  Our tool also supports a
+     temporal correlations between these events.  Our tool also supports a
      fragment of IEEE Property Specification Language. 
      
      %We believe that the formal
