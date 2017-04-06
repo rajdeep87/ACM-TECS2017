@@ -985,21 +985,21 @@ event.
 \\
 \hline
 \begin{lstlisting}[mathescape=true,language=C,moredelim={[is][keywordstyle]{@@}{@@}}]
-int monitor_P1() { 
+bool monitor_P1() { 
  if(outb(UART_TR,0x0c)){
   next_timeframe();
   assert(@@ ack_o==1 @@);}}
 \end{lstlisting} 
 &
 \begin{lstlisting}[mathescape=true,language=C,moredelim={[is][keywordstyle]{@@}{@@}}]
-int monitor_P2() { 
+bool monitor_P2() { 
  assert(!tx_empty() || 
  (@@(send_data&0x1)==1)@@);
 }
 \end{lstlisting} \\ 
 \hline
 \end{tabular}
-\caption{Transaction-level property as monitor (in C)}
+\caption{Transaction level property as monitor (in C)}
 \label{figure:transaction}
 \end{figure}
 %
@@ -1036,7 +1036,7 @@ P3: assert property
 \end{lstlisting}
 &
 \begin{lstlisting}[mathescape=true,language=C]
-Bool monitor_P3() {
+bool monitor_P3() {
  assert(!ack || valid);
  next_timeframe();
  next_timeframe();
@@ -1044,7 +1044,7 @@ Bool monitor_P3() {
 \end{lstlisting} \\
 \hline
 \end{tabular}
-\caption{Component-level property (in SVA) as monitor (in C)}
+\caption{Component level property as monitor (in C)}
 \label{figure:component}
 \end{figure}
 % 
@@ -1077,19 +1077,6 @@ transmission and reception of data which provides serial communication
 capabilities with a modem or other external devices.  The UART IP is
 compliant with industry standards for UART and interfaces with the wishbone
 bus.  The design statistics for UART is shown in Table~\ref{table:stats}.
-
-\Omit{
-The core supports single transmission/reception format which is
-1~start bit, 1~stop bit and 8~data bits without parity.  It also contains a
-single transmit/receive buffer.  The UART IP implements a baud rate
-generation circuit based on a harmonic frequency synthesizer that support a
-wide variety of clock frequencies.  The UART IP core is implemented in
-approximately 1000 lines of Verilog RTL, generating several thousand gates. 
-The UART is obtained from~\url{http://www.opencores.org}.  A software
-netlist model (in C) is synthesized from the UART RTL using \emph{v2c}.  The
-software netlist model is approximately 1100 LOC.
-\rmcmt{refer stats table}
-}
 %
 \begin{table}
 \begin{center}
@@ -1136,11 +1123,7 @@ at the bit-level and word-level.  Column~7 gives the verification
 times using \verifox.  Column~5~and~6 report
 the total/feasible path counts and the percentage of infeasible paths pruned
 for each mode.  The focus of our experiment is to compare the performance of 
-path-based techniques over monolithic BMC. 
-%effectively pruning infeasible FW-HW interactions with respect to a
-%scenario.  is demonstrated by the \%-age of pruned paths (reported in
-%column~9) for each scenario.
-
+path-based techniques over monolithic BMC.\\ 
 \textbf{\emph{Safety properties:}}
 We verify several properties of the FW-HW interactions of UART IP. 
 In Scenario~A and scenario~B, we verified whether
@@ -1203,7 +1186,7 @@ to MiniSAT. So, we do not report the verification with SMT solvers.   }
 \hline
   & Bound & \multicolumn{2}{c|}{Monolithic} & \multicolumn{3}{c|}{Path-based} \\ 
 \cline{3-7}
- Scenario &  & \multicolumn{2}{c|}{HW-CBMC} & \multicolumn{3}{c|}{VerifOx} \\ 
+ Scenario &  & \multicolumn{2}{c|}{HW-CBMC} & \multicolumn{3}{c|}{\verifox} \\ 
 \cline{3-7}
       &       &  Bit-level & Word-level & Total/Feasible & \%-age & $\mathcal{M}_{seq}$  \\
 %\cline{1-7}
@@ -1234,7 +1217,7 @@ loopback (64) & 1300 & 443.15 & 427.68 & 247104/2566 & 98.96 & \textbf{62}.\text
 }
 \end{center}
 %\vspace{-1.3mm}
-\caption{Bounded safety proof times for HW/SW co-verification of UART 
+\caption{Bounded safety proof times for verification of UART 
 \label{table:safe}}
 \end{table}
 
@@ -1308,7 +1291,7 @@ data\_transfer & 20 & 92.63 & 91.28 & \textbf{1}.\textbf{27} \\
 }
 \end{center}
 %\vspace{-1.3mm}
-\caption{Bounded safety proof times for HW/SW co-verification of a SoC 
+\caption{Bounded safety proof times for verification of a SoC 
 \label{table:SoC}}
 \end{table}
 
