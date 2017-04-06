@@ -1048,7 +1048,19 @@ bool monitor_P3() {
 \caption{Component level property as monitor (in C)}
 \label{figure:component}
 \end{figure}
-% 
+%
+%-------------------------------------------------------------------------------
+\subsection{Debugging Using Counterexample Trace}
+%-------------------------------------------------------------------------------
+A failure of co-design property implies a fault in HW or defective FW 
+or bug in the interface functions.  Hence, an important feature of a
+co-verification tool is its ability to produce a counterexample trace 
+in order to localize the bug.  \hwcbmcv generates a counterexample
+trace in value change dump (vcd) format that contains concrete assignments to FW
+variables, interface signals and HW RTL signals up to a given bound. Whereas, a
+counterexample trace in \verifox is a bounded path in the sequential co-verification
+model that contains a scenario and its corresponding HW and FW transactions. 
+%
 %===============================================================================
 \section{Experimental Results}
 %===============================================================================
@@ -1114,17 +1126,19 @@ whether the transmitter buffer is empty or the receiver buffer is full
 respectively, hence the control is non-deterministic in this mode. \\
 %
 \textbf{\emph{Discussion:}}
-Table~\ref{table:safe} reports the run times for bounded safety proofs of
-FW-HW interaction properties of the UART IP core.  Column~1 in
-Table~\ref{table:safe} gives the name of the scenario -- transmission
+Table~\ref{table:safe} reports the run times for bounded safety proofs of 
+co-design properties in UART IP core.  Column~1 in Table~\ref{table:safe} 
+gives the name of the scenario -- transmission
 without interrupt (transmit), transmission with interrupt (trans\_intr) and
 loopback mode (loopback).  Column~2 gives the maximum loop bound in the
-firmware.  Column~3~and~4 present the co-verification times using \hwcbmcv
-at the bit-level and word-level.  Column~7 gives the verification
-times using \verifox.  Column~5~and~6 report
-the total/feasible path counts and the percentage of infeasible paths pruned
-for each mode.  The focus of our experiment is to compare the performance of 
-path-based techniques over monolithic BMC.\\ 
+firmware.  Column~3 present the co-verification times using \hwcbmcv
+at the bit-level.  Column~4~and~5 report the total/feasible path counts and the 
+percentage of infeasible paths pruned for each scenario in \verifox.  
+Column~6 gives the verification times using \verifox.  Column~7 report 
+the verification outcome. The focus of our experiment is to compare 
+the performance of path-based technique with monolithic BMC approach for 
+co-verification.  We observe similar performance of bit-level and word-level 
+flow in \hwcbmcv. So, we only report bit-level results for \hwcbmcv in this paper. \\ 
 \textbf{\emph{Safety properties:}}
 We verify a total of~17 transaction level properties and~22 component level 
 properties of the UART IP.  Table~\ref{table:safe} reports some of the
@@ -1185,34 +1199,47 @@ to MiniSAT. So, we do not report the verification with SMT solvers.   }
 \begin{scriptsize}
 \begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
-  & Bound & \multicolumn{2}{c|}{Monolithic} & \multicolumn{3}{c|}{Path-based} \\ 
+  & & \multicolumn{1}{c|}{Monolithic} & \multicolumn{3}{c|}{Path-based} &
+  Verification \\ 
+\cline{3-6}
+  Scenario & Bound & \multicolumn{1}{c|}{HW-CBMC} & \multicolumn{3}{c|}{\verifox} &
+  Results \\ 
 \cline{3-7}
- Scenario &  & \multicolumn{2}{c|}{HW-CBMC} & \multicolumn{3}{c|}{\verifox} \\ 
-\cline{3-7}
-      &       &  Bit-level & Word-level & Total/Feasible & \%-age & $\mathcal{M}_{seq}$  \\
-%\cline{1-7}
-      &       &   Time     &   Time      & Paths & Pruning & Time \\
+      &       &  Bit-level & Total/Feasible & \%-age & $\mathcal{M}_{seq}$ &
+      Safe/Unsafe \\
+  \cline{3-3}\cline{6-6}
+      &       &   Time     & Paths & Pruning & Time &  \\
 \cline{1-7}      
 \multicolumn{7}{|c|}{non-deterministic data but deterministic control (Scenario A)} \\ \hline
-  transmit (32) & 250 & 15.02 & 15.78 & 247104/224 & 99.90 & \textbf{1}.{13} \\ 
-transmit (64) & 500 & 23.87 & 23.29 & 247104/324 & 99.86 & \textbf{1}.\textbf{61}  \\ \hline 
+  transmit (32) & 250 & 15.02 & 247104/224 & 99.90 & \textbf{1}.\textbf{13} &
+  Safe $(\psi_{c})$ \\ 
+transmit (64) & 500 & 23.87 & 247104/324 & 99.86 &
+  \textbf{1}.\textbf{61}  & Safe $(\psi_{t})$ \\ \hline 
 \multicolumn{7}{|c|}{non-deterministic data and non-deterministic control
 (Scenario B)} \\ \hline
-  trans\_intr (32) & 250 & 14.86 & 15.98 & 247104/295 & 99.88 & \textbf{1}.{49} \\
-  trans\_intr (64) & 500 & 24.14 & 26.42 & 247104/362 & 99.85 & \textbf{1}.{81} \\ \hline
+  trans\_intr (32) & 250 & 14.86 & 247104/295 & 99.88 & \textbf{1}.\textbf{49} &
+  Safe $(\psi_{t})$ \\
+  trans\_intr (64) & 500 & 24.14 & 247104/362 & 99.85 & \textbf{1}.\textbf{81}
+  & Safe $(\psi_{t})$ \\ \hline
 \multicolumn{7}{|c|}{non-deterministic data and non-deterministic control
 (scenario C)} \\ \hline
-loopback (8)  & 230 & 52.06 & 55.71 & 247104/354 & 99.85 & \textbf{3}.\textbf{95} \\ 
-loopback (16) & 500 & 122.12 & 147.65 & 247104/690 & 99.72 & \textbf{12}.\textbf{89} \\ 
-loopback (32) & 650 & 170.62 & 192.35 & 247104/1282 & 99.48 & \textbf{21}.\textbf{85}   \\ 
-loopback (64) & 1300 & 409.71 & 445.66 & 247104/2566 & 98.96 & \textbf{62}.\textbf{31}  \\ \hline
+  loopback (8)  & 230 & 52.06 & 247104/354 & 99.85 & \textbf{3}.\textbf{95} &
+  Safe $(\psi_{t})$ \\ 
+  loopback (16) & 500 & 122.12 & 247104/690 & 99.72 & \textbf{12}.\textbf{89} &
+  Safe $(\psi_{c})$ \\ 
+  loopback (32) & 650 & 170.62 & 247104/1282 & 99.48 & \textbf{21}.\textbf{85} &
+  Safe $(\psi_{c})$ \\ 
+  loopback (64) & 1300 & 409.71 & 247104/2566 & 98.96 & \textbf{62}.\textbf{31}
+  & Safe $(\psi_{t})$ \\ \hline
 \multicolumn{7}{|c|}{detecting data-path bugs in transmission mode w/o interrupt} \\ \hline
-  transmit (64) & 520 & 28.43 & 28.14 & 247104/324 & 99.86 &
-  \textbf{1}.\textbf{12} \\ \hline
+  transmit (64) & 520 & 28.43 & 247104/324 & 99.86 &
+  \textbf{1}.\textbf{12} & Unsafe $(\psi_{t})$ \\ \hline
 \multicolumn{7}{|c|}{detecting control bugs with interrupt enabled} \\ \hline
-transmit (64) & 520 & 31.35 & 29.70 & 247104/362 & 99.85 & \textbf{1}.\textbf{05} \\ \hline
+transmit (64) & 520 & 31.35 & 247104/362 & 99.85 &
+  \textbf{1}.\textbf{05} & Unsafe $(\psi_{c})$ \\ \hline
 \multicolumn{7}{|c|}{detecting control bugs in loopback mode} \\ \hline
-loopback (64) & 1300 & 443.15 & 427.68 & 247104/2566 & 98.96 & \textbf{62}.\textbf{34} \\ \hline
+  loopback (64) & 1300 & 443.15 & 247104/2566 & 98.96 & \textbf{62}.\textbf{34}
+  & Unsafe $(\psi_{t})$ \\ \hline
 \end{tabular}
 \end{scriptsize}
 }
@@ -1228,7 +1255,7 @@ loopback (64) & 1300 & 443.15 & 427.68 & 247104/2566 & 98.96 & \textbf{62}.\text
 
 \textbf{\emph{About the SoC:}}
 %
-We obtained an open source SoC design
+We obtained an open source System-on-a-Chip design
 from~\cite{DBLP:conf/fmcad/SubramanyanVRM15}.  It consists of an 8051
 micro-controller, a memory arbiter, an external memory (XRAM) and
 cryptographic accelerators, as shown in Figure~\ref{fig:soc}.  
@@ -1239,7 +1266,7 @@ module that interfaces the AES to the 8051 micro-controller using
 a memory-mapped I/O interface.  The micro-controller communicates 
 with the accelerators and the XRAM by reading or writing to 
 XRAM addresses.  The arbitration of these module is done by 
-the memory arbiter module.  
+the memory arbiter module. \\ 
 %
 \begin{figure}[t]
 \scalebox{.50}{\import{figures/}{soc.pspdftex}}
@@ -1247,14 +1274,6 @@ the memory arbiter module.
 \label{fig:soc}}
 \end{figure}
 %
-\Omit{
-We synthesized the SoC to a software netlist (in C).  The generated model 
-is bit-precise as well as cycle accurate.  The size of the
-software netlist is approximately~3200 LOC.  The combinatorial exchanges
-between the memory arbiter, XRAM and the AES module is modelled
-appropriately in the software netlist.
-}
-
 \textbf{\emph{About the firmware:}}
 %
 The FW initiates the operation in the SoC by first writing to an
@@ -1265,27 +1284,29 @@ port and then reads the data from the same port.  The cryptographic
 accelerators use direct memory access to fetch the data from the external
 memory.  The completion of the operation is determined by polling the
 appropriate memory-mapped registers in the FW.
-
+%
 \begin{table}
 \begin{center}
 {
 %\begin{scriptsize}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-  & Bound & \multicolumn{2}{c|}{Monolithic} & \multicolumn{1}{c|}{Path-based} \\ 
+  & Bound & \multicolumn{1}{c|}{Monolithic} & \multicolumn{1}{c|}{Path-based} &
+  Verification \\ 
+\cline{3-4}
+  Scenario &  & \multicolumn{1}{c|}{\hwcbmcv} & \verifox & Result \\ 
 \cline{3-5}
- Scenario &  & \multicolumn{2}{c|}{\hwcbmcv} & \verifox \\ 
-\cline{3-5}
-      &       &  Bit-level & Word-level & $\mathcal{M}_{seq}$ \\
+      &       & Bit-level Netlist & $\mathcal{M}_{seq}$ & Safe/Unsafe \\
 \cline{1-5}
-      &       &   Time     &   Time     & Time \\
+      &       &   Time      & Time &  \\
 \cline{1-5}      
-\multicolumn{5}{|c|}{non-deterministic data and non-deterministic control (safe)} \\ \hline
-data\_transfer & 20 & 86.92 & 86.23 & \textbf{17}.\textbf{42} \\ 
+\multicolumn{5}{|c|}{non-deterministic data and non-deterministic control} \\ \hline
+  data\_transfer & 20 & 86.92 & \textbf{17}.\textbf{42} & Safe $(\psi_{t})$ \\
+  \hline
+  data\_transfer & 30 & 102.92 & \textbf{56}.\textbf{29} & Safe $(\psi_{c})$ \\ 
 \hline
-\multicolumn{5}{|c|}{non-deterministic data and non-deterministic control
-(unsafe)} \\ \hline
-data\_transfer & 20 & 92.63 & 91.28 & \textbf{1}.\textbf{27} \\ 
+\multicolumn{5}{|c|}{non-deterministic data and non-deterministic control} \\ \hline
+  data\_transfer & 20 & 92.63 & \textbf{1}.\textbf{27} & Unsafe $(\psi_{c})$ \\ 
 \hline
 \end{tabular}
 %\end{scriptsize}
@@ -1295,17 +1316,16 @@ data\_transfer & 20 & 92.63 & 91.28 & \textbf{1}.\textbf{27} \\
 \caption{Bounded safety proof times for verification of a SoC 
 \label{table:SoC}}
 \end{table}
-
+%
 \textbf{\emph{Discussion of the result:}}
 %
 Table~\ref{table:SoC} gives the runtimes for bounded safety proofs of 
-co-design properties of the SoC.  Column~1 in
+co-design properties in SoC.  Column~1 in
 Table~\ref{table:SoC} gives the name of the scenario -- transmission with
 interrupt (data\_transfer).  Column~2 report the maximum loop bound in the 
-FW.  Column~3~and~4 present the co-verification times using \hwcbmcv
-at the bit-level and word-level, respectively.  Columns~5 report the
-verification time using \verifox.  
-
+FW.  Column~3 present the co-verification times using \hwcbmcv
+at the bit-level.  Columns~4 report the verification time using \verifox. 
+Column~5 report the verification outcome. \\
 \textbf{\emph{Safety properties:}}
 %
 We verify a total of 7 transaction level propertes and 12 
@@ -1317,7 +1337,6 @@ non-deterministic data transmitted through $outb()$ is the same
 the data received through $inb()$.  We also verify that
 reading/writing to the appropriate memory-mapped registers produce the
 correct result during the data transmission phase.\\ 
-
 \textbf{\emph{Detecting SoC bugs:}} We found one critical \emph{control bug} 
 in the SoC design.  The bug is manifested when memory arbiter hardware 
 wrongly arbitrates the port selection thereby forcing the write strobe 
@@ -1326,8 +1345,7 @@ in the SoC design.
 
 The result in Table~\ref{table:SoC} shows that \verifox is approximately
 $5\times$ faster than \hwcbmcv for proving safety.  For detecting bugs, 
-the speedup is $72\times$ for \verifox over \hwcbmcv.  
-
+the speedup is $72\times$ for \verifox over \hwcbmcv. \\ 
 \textbf{\emph{Monolithic versus Path-based:}}
 The reason for better scalability of \verifox compared to 
 \hwcbmcv is attributed to the path-based exploration strategy combined 
@@ -1335,8 +1353,9 @@ with eager path pruning and incremental SAT solving.  In the case of SoC,
 the FW exercises only the micro-controller and transfer sequence of bytes to the XRAM port 
 bypassing peripherals connected to other ports such as hardware accelerator.  
 This scenario allows path-based exploration techniques to prune the logic for
-accelerator.  It is important to note that forward symbolic execution without
-these optimizations timeout for all the benchmarks.
+accelerator and thereby generate only relevant scenario/transaction pairs.  It 
+is important to note that forward symbolic execution without these optimizations 
+timeout for all the benchmarks.
 
 By contrast, \hwcbmcv is not able to prune the irrelevant transactions with
 respect to a scenario due to monolithic BMC based approach.  Hence, \hwcbmcv
@@ -1410,7 +1429,7 @@ a unified co-verification model.
 %===============================================================================
 \section{Concluding Remarks}
 %===============================================================================
-
+\rmcmt{
 In this paper, we presented a novel HW/SW co-verification tool, \verifox,
 for C-based FW and hardware models given in Verilog RTL.  We presented a
 notion of transaction in joint RTL and FW models.  We showed that the
@@ -1427,7 +1446,7 @@ co-verification tool, \hwcbmcv.  We demonstrate applicability of our
 approach for proving safety as well as finding FW-HW bugs for a UART IP and
 a SoC design.  In the future, we plan to extend our framework to FW-HW
 models that exhibit further interaction patterns.
-
+}
 %\bibliographystyle{ACM-Reference-Format}
 \bibliographystyle{abbrv}
 \bibliography{biblio} 
