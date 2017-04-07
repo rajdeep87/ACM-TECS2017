@@ -759,10 +759,10 @@ in $V'$ and $V$, respectively.
 
 
 Figure~\ref{fig:interleaving1} illustrates the producer-consumer relationship 
-in UART IP. The FW CFG is shown in the left and the 
-HW RTL code snippet is shown in the right. We abuse notations and 
+in UART IP. The FW CFG is shown on the left and the 
+HW RTL code snippet is shown on the right. We abuse notations and 
 represent $\mathcal{HT}$ in the form of RTL and $\mathcal{FT}$ as CFG
-for our illustration purpose. Here, $\mathcal{HT}$ is the producer of interrupt 
+for illustration purpose. Here, $\mathcal{HT}$ is the producer of interrupt 
 status signal, $irq\_o$, which is read by $\mathcal{FT}$ in state $s_1$. 
 The signal $irq\_o$ is  triggered when transmitter buffer is 
 {\em EMPTY} or receiver buffer is {\em FULL}. 
@@ -836,11 +836,11 @@ call to $next\_timeframe()$ is used to advance the HW clock by one cycle.  A cal
 to the software netlist emulates the effect of one clock period in the RTL 
 model. That is, the state of state holding elements (registers) and combinational 
 elements (wires) are uniform in software netlist and RTL model after every invocation of 
-$next_timeframe()$.  Furthermore, a software
+$next\_timeframe()$.  Furthermore, a software
 netlist is a sequential model of HW RTL which is represented in C.  Thus, the
 composition leads to a single-threaded sequential co-verification model in C.  
 %
-We now formally define a our co-verification model, denoted by 
+We now formally define our co-verification model, denoted by 
 $\mathcal{M}_{seq}$.
 %
 \[ 
@@ -905,11 +905,11 @@ In contrast to path-based approach,
 Figure~\ref{fig:conventional} uses synthesis to obtain either a bit-level or
 a word-level netlist from Verilog RTL.  A bit-level netlist is represented 
 in And Inverter Graph (AIG) format.  Whereas, a word-level netlist is represented 
-in format that resembles SMT-LIB standards.  The bottom flow illustrates the
-translation of C program into static single assignment (SSA) form. 
+in format that resembles SMT-LIB \sjcmt{which version? 1 or 2?} standard.  The bottom flow illustrates the
+translation of C program into a static single assignment (SSA) form. 
 Synthesizing netlist from RTL is a standard technique which is widely 
 used in hardware model checkers~\cite{DBLP:journals/tse/Clarke76}.
-Similarly, translating a C program into a SSA representation is a 
+Similarly, translating a C program into an SSA representation is a 
 standard technique which is widely used in 
 software verification tools, such as CBMC~\cite{cbmc.tacas:2004}. 
 \hwcbmcv generates a monolithic co-verification model from AIG and SSA through 
@@ -918,7 +918,7 @@ in-tandem symbolic execution of HW and FW components.
 \textbf{Step 2: Bounded Model Checking}
 %
 The co-verification model is checked with bounded model checking (BMC).
-Given an unwind depth depth~$k$ and a co-design property $P$, BMC operates
+Given an unwind depth~$k$ and a co-design property $P$, BMC operates
 by unwinding the co-verification model~$M$ up to depth~$k$ starting from
 initial state $x_0$, represented by an initial state predicate~$I$.
 This results in the following formula which is then checked for
@@ -928,7 +928,7 @@ satisfiability using an efficient SAT or SMT procedure.
 \neg P(x_i) \]
 %
 Thus, BMC exploits the finiteness of $M$ and creates k copies of the
-$M$ for each unrolling.
+$M$ for each unrolling \sjcmt{not always true}.
 
 
 %\hwcbmcv provides specific handshake primitives such
