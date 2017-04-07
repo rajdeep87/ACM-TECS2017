@@ -187,7 +187,7 @@ HW~\footnote{Note that whenever we refer to ``hardware''
 from this point onwards, we mean an RTL implementation 
 and not a TLM.}  and FW models.  Most of the existing techniques 
 for constructing a unified FW-HW model~\cite{fmsd02,emsoft07,fase10} 
-are not useful in practise for three reasons -- 1) use of abstract HW models 
+are not useful in practice for three reasons -- 1) use of abstract HW models 
 instead of RTL implementation, 2) the unified model
 construction is agnostic to the underlying reasoning engine, and 3) 
 the unified model does not leverage property specification over the
@@ -286,13 +286,13 @@ which interleaves asynchronously. It is well recognized that concurrency is at
 the heart of co-verification. The number of interleavings between the FW
 and HW threads can be large, which can become a bottleneck in the
 verification process.  However, we observe that in practice, 
-producer-consumer relationship is prevelant in many industrial 
+producer-consumer relationship is prevalent in many industrial 
 co-designs~\cite{polig2014micro,polig2014fpl,giefers2015accelerating} --
 the master module (producer) solely updates the shared registers which are
 consumed by the slave (consumer).  This key observation allows us to
 sequentialize concurrent FW and HW transactions that follow specific interaction
 patterns.  This drastically reduces the total number of interleavings 
-between a FW and HW threads and simplies the overall complexity of the 
+between a FW and HW threads and simplifies the overall complexity of the 
 verification task. 
 %
 %===============================================================================
@@ -1345,10 +1345,10 @@ co-verification times using \hwcbmcv at the bit-level.  Columns~4 report
 the verification time using \verifox. Column~5 report the verification outcome. \\
 \textbf{\emph{Safety properties:}}
 %
-We verify a total of 7 transaction level propertes and 12 
+We verify a total of 7 transaction level properties and 12 
 component level properties for the SoC co-design.  Due to space 
 limitations, we report~4 representative properties in Table~\ref{table:SoC}.  
-We check whether the acknowledgment for data transmission and data reception arrives
+We check whether the acknowledgement for data transmission and data reception arrives
 from the micro-controller in the correct cycle.  We verify whether the
 non-deterministic data transmitted through $outb()$ is the same as 
 the data received through $inb()$.  We also verify that
@@ -1395,7 +1395,7 @@ is not applicable for co-designs that exhibits true concurrency~\cite{codesign},
 that is, a FW and its interacting HW threads do not show producer-consumer relationship.  
 In this case, it is imperative to consider all possible interleavings between participating 
 threads in an efficient manner.  To the best of our knowledge, the producer-consumer 
-interaction pattern is prevelant in many practical 
+interaction pattern is prevalent in many practical 
 co-designs~\cite{polig2014micro,polig2014fpl,giefers2015accelerating,hvc}. 
 
 
@@ -1464,7 +1464,7 @@ design using \hwcbmcv and \verifox.
 We uncovered three critical bugs in UART and one control-path bug in the SoC 
 within only couple of minutes. 
 
-In practise, a FW exercises only a fragment of the HW state-space for a given scenario.  
+In practice, a FW exercises only a fragment of the HW state-space for a given scenario.  
 This renders many interactions between HW and FW transactions infeasible.   
 Our general observation is that bounded model checking technique in \hwcbmcv 
 cannot prune irrelevant transactions with respect to a given scenario, 
