@@ -102,15 +102,15 @@ Tom Melham \\
 %
 Time-to-market pressure requires early development of firmware and other
 drivers for circuitry well before RTL is finished.  A key risk is divergence
-of the hardware RTL from the behavior expected by the software.  Formal
-methods can deliver a proof that the RTL and the firmware match, but are
+of the hardware RTL from the behavior expected by the firmware.  Formal
+methods can deliver a proof that the RTL and the firmware behave correctly, but are
 difficult to scale up.  We propose to identify partitions of the firmware and
 the RTL that follow transaction boundaries by means of path-based symbolic
 simulation with custom path-pruning.  We have implemented this approach in 
 our tool \verifox.  We have experimentally compared \verifox with \hwcbmcv, 
-which constructs a single monolithic SAT/SMT instance, and observe speedup of 
-an order of magnitude over \hwcbmcv for proving safety properties as well as 
-detecting firmware/hardware bugs.
+which constructs a single monolithic SAT/SMT instance, and observe an average 
+speedup of $5\times$ over \hwcbmcv for proving safety properties as well as 
+detecting critical co-design bugs.
 %
 \end{abstract}            
 
@@ -1185,12 +1185,9 @@ in the FW. Thus, the transmitted data is not the same as the received
 data in loopback mode leading to a control bug.
 
 Table~\ref{table:safe} shows that path-based symbolic execution dominates
-monolithic BMC in all scenarios (marked bold).  The average speedup for
-proving safety properties is on average $21\times$ 
-%\sjcmt{is it average for table 3 only? or also table 4?} 
-for \verifox over \hwcbmcv.  The average speedup for detecting bugs is $48\times$ on average 
-for \verifox over \hwcbmcv.  Thus, \verifox outperforms \hwcbmcv 
-in all scenarios. 
+monolithic BMC in all scenarios (marked in bold). \verifox is on average 
+$8\times$ faster than \hwcbmcv, both for proving safety as well as 
+detecting bugs.  Thus, \verifox outperforms \hwcbmcv in all scenarios. 
 
 \Omit{
 \verifox also outperforms \klee for most configurations in
@@ -1262,7 +1259,7 @@ transmit (64) & 520 & 31.35 & 247104/362 & 99.85 &
 }
 \end{center}
 %\vspace{-1.3mm}
-\caption{Bounded safety proof times for verification of UART 
+\caption{Verification times for UART design
 \label{table:safe}}
 \end{table}
 
@@ -1318,19 +1315,21 @@ appropriate memory-mapped registers in the FW. \\
       &       &   Time      & Time &  \\
 \cline{1-5}      
 \multicolumn{5}{|c|}{non-deterministic data and non-deterministic control} \\ \hline
-  data\_transfer & 20 & 86.92 & \textbf{17}.\textbf{42} & Safe $(\psi_{t})$ \\
+  data\_transfer & 20 & 86.18 & \textbf{17}.\textbf{42} & Safe $(\psi_{t})$ \\
   \hline
-  data\_transfer & 30 & 102.92 & \textbf{56}.\textbf{29} & Safe $(\psi_{c})$ \\ 
+  AES\_feedback & 30 & 102.92 & \textbf{56}.\textbf{29} & Safe $(\psi_{c})$ \\ 
 \hline
 \multicolumn{5}{|c|}{non-deterministic data and non-deterministic control} \\ \hline
-  data\_transfer & 20 & 92.63 & \textbf{1}.\textbf{27} & Unsafe $(\psi_{c})$ \\ 
+  write\_XRAM & 20 & 92.63 & \textbf{14}.\textbf{78} & Unsafe $(\psi_{c})$ \\ 
+\hline
+  DMA & 32 & 128.63 & \textbf{68}.\textbf{19} & Safe $(\psi_{t})$ \\ 
 \hline
 \end{tabular}
 \end{scriptsize}
 }
 \end{center}
 %\vspace{-1.3mm}
-\caption{Bounded safety proof times for verification of a SoC 
+\caption{Verification times for SoC Design
 \label{table:SoC}}
 \end{table}
 %
@@ -1339,16 +1338,17 @@ appropriate memory-mapped registers in the FW. \\
 Table~\ref{table:SoC} gives the runtimes for bounded safety proofs of 
 co-design properties in SoC.  Column~1 in
 Table~\ref{table:SoC} gives the name of the scenario -- transmission with
-interrupt (data\_transfer).  Column~2 report the maximum loop bound in the 
-FW.  Column~3 present the co-verification times using \hwcbmcv
-at the bit-level.  Columns~4 report the verification time using \verifox. 
-Column~5 report the verification outcome. \\
+interrupt (data\_transfer), communication with AES (AES\_feedback), writing to 
+XRAM (write\_XRAM) and DMA (Direct Memory Access by Cryptographic Accelerator).  
+Column~2 report the maximum loop bound in the FW.  Column~3 present the 
+co-verification times using \hwcbmcv at the bit-level.  Columns~4 report 
+the verification time using \verifox. Column~5 report the verification outcome. \\
 \textbf{\emph{Safety properties:}}
 %
 We verify a total of 7 transaction level propertes and 12 
 component level properties for the SoC co-design.  Due to space 
-limitations, we describe some representative properties.  We check
-whether the acknowledgment for data transmission and data reception arrives
+limitations, we report~4 representative properties in Table~\ref{table:SoC}.  
+We check whether the acknowledgment for data transmission and data reception arrives
 from the micro-controller in the correct cycle.  We verify whether the
 non-deterministic data transmitted through $outb()$ is the same as 
 the data received through $inb()$.  We also verify that
@@ -1361,8 +1361,8 @@ for the external RAM to be LOW.  This violates the data transfer protocol
 in the SoC design.
 
 The result in Table~\ref{table:SoC} shows that \verifox is approximately
-$5\times$ faster than \hwcbmcv for proving safety.  For detecting bugs, 
-the speedup is $72\times$ for \verifox over \hwcbmcv. \\ 
+$2\times$ faster than \hwcbmcv for proving safety.  For detecting bugs, 
+the speedup is $6\times$ for \verifox over \hwcbmcv. \\ 
 \textbf{\emph{Monolithic versus Path-based:}}
 The reason for better scalability of \verifox compared to 
 \hwcbmcv is attributed to the path-based exploration of a 
@@ -1461,8 +1461,8 @@ effectively capture co-design properties.
 We proved several transaction and component level properties of UART and SoC
 design using \hwcbmcv and \verifox.  
 %We for proving safety as well as finding critical co-design bugs for a UART IP and a complex SoC design.  
-We uncovered three critical bugs in UART and one control-path bug in the SoC in 
-less than a minute. 
+We uncovered three critical bugs in UART and one control-path bug in the SoC 
+within only couple of minutes. 
 
 In practise, a FW exercises only a fragment of the HW state-space for a given scenario.  
 This renders many interactions between HW and FW transactions infeasible.   
