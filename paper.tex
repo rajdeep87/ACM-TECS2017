@@ -1080,7 +1080,6 @@ model that contains a scenario and its corresponding HW and FW transactions.
 \section{Experimental Results}
 %===============================================================================
 %
-<<<<<<< HEAD
 We report experimental results for FW-HW co-verification of a UART  and a
 SoC design.  All our experiments were performed on an Intel Xeon 3.07\,GHz
 machine with 48\,GB RAM.  All times reported are in seconds.  The timeout 
@@ -1154,7 +1153,8 @@ Column~6 gives the verification times using \verifox.  Column~7 report
 the verification outcome. The focus of our experiment is to compare 
 the performance of path-based technique with monolithic BMC approach for 
 co-verification.  We observe similar performance of bit-level and word-level 
-flow in \hwcbmcv. So, we only report bit-level results for \hwcbmcv in this paper. 
+flow in \hwcbmcv. So, we only report bit-level results for \hwcbmcv in this
+paper. \\ 
 %\sjcmt{I think this can backfire. The reivewers may ask why were other results not reported if available}\\ 
 \textbf{\emph{Safety properties:}}
 We verify a total of~17 transaction level properties and~22 component level 
@@ -1306,7 +1306,7 @@ appropriate memory-mapped registers in the FW.
 \begin{table}
 \begin{center}
 {
-%\begin{scriptsize}
+\begin{scriptsize}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
   & Bound & \multicolumn{1}{c|}{Monolithic} & \multicolumn{1}{c|}{Path-based} &
@@ -1327,7 +1327,7 @@ appropriate memory-mapped registers in the FW.
   data\_transfer & 20 & 92.63 & \textbf{1}.\textbf{27} & Unsafe $(\psi_{c})$ \\ 
 \hline
 \end{tabular}
-%\end{scriptsize}
+\end{scriptsize}
 }
 \end{center}
 %\vspace{-1.3mm}
@@ -1335,7 +1335,6 @@ appropriate memory-mapped registers in the FW.
 \label{table:SoC}}
 \end{table}
 %
-
 \textbf{\emph{Discussion of the result:}}
 %
 Table~\ref{table:SoC} gives the runtimes for bounded safety proofs of 
@@ -1396,8 +1395,9 @@ execution by generating relevant scenario/transaction pairs.  However, this appr
 is not applicable for co-designs that exhibits true concurrency~\cite{codesign}, 
 that is, a FW and its interacting HW threads do not show producer-consumer relationship.  
 In this case, it is imperative to consider all possible interleavings between participating 
-threads in an efficient manner.  Fortunately, a producer-consumer interaction pattern is
-prevelant in many practical co-designs~\cite{polig2014micro,polig2014fpl,giefers2015accelerating,hvc}. 
+threads in an efficient manner.  To the best of our knowledge, the producer-consumer 
+interaction pattern is prevelant in many practical 
+co-designs~\cite{polig2014micro,polig2014fpl,giefers2015accelerating,hvc}. 
 
 
 % ===============================================================================
@@ -1424,6 +1424,7 @@ called Buchi Pushdown System ({\em BPDS}).  In this paper, we construct a unifie
 sequential co-verification model in C which enable us to automatically 
 generate {\em scenario/transaction} pairs using path-based symbolic execution. 
 
+\Omit{
 A system is comprised of a set of concurrent FW and HW models, which
 interleave asynchronously.  Malik et al.~in~\cite{hvc} showed 
 that these patterns are meaningful in further
@@ -1432,13 +1433,14 @@ a Rockbox firmware interacting with an iAudio X5 device.  Practical industrial
 co-designs, such as IBM Text Accelerator co-design~\cite{polig2014micro,polig2014fpl} 
 and IBM coherent FFT coprocessor~\cite{giefers2015accelerating} also exhibits
 producer-consumer interaction pattern. 
-
+}
 Common practice in industry for system-level co-verification is to 
 either use emulators/accelerators or Instruction Set Simulators 
 (ISS)~\cite{coverif-book}.  However, no rigorous formal verification 
 effort is performed at the post-RTL phase to ensure the validity of the
 FW-HW interactions.  
 
+\Omit{
 The concept of symbolic execution~\cite{DBLP:journals/tse/Clarke76,
 DBLP:conf/pldi/GodefroidKS05, DBLP:conf/osdi/CadarDE08} is prevalent in the
 software domain for automated test generation as well as bug finding.  This
@@ -1446,22 +1448,24 @@ technique is different from the symbolic simulation techniques that are used
 in the hardware domain.  In this paper, we apply path-wise symbolic execution
 to mine relevant scenario/transaction pairs for effective co-verification of 
 a unified co-verification model.  
-
+}
 %===============================================================================
 \section{Concluding Remarks}
 %===============================================================================
 %
 In this paper, we presented two different approaches for formal verification of 
 HW/SW co-designs -- \emph{monolithic} and \emph{path-based}.  These approaches are 
-embodied in \hwcbmcv and \verifox.  Our tools support co-designs written 
-in Verilog RTL and C.  We also presented a specification language to 
-effectively capture co-design properties.  To this end, we classify co-design 
-properties into two types --  \emph{transaction level} and \emph{component level} 
-property.  We successfully demonstrate the application of \hwcbmcv and \verifox 
-for proving safety as well as finding critical co-design bugs for 
-a UART IP and a complex SoC design.  
+embodied in our tools, \hwcbmcv and \verifox, respectively.  Our tools support 
+co-designs written in Verilog RTL and C.  We also presented a specification language to 
+effectively capture co-design properties.  
+%To this end, we classify co-design properties into two types --  \emph{transaction level} and \emph{component level} property.  
+We proved several transaction and component level properties of UART and SoC
+design using \hwcbmcv and \verifox.  
+%We for proving safety as well as finding critical co-design bugs for a UART IP and a complex SoC design.  
+We uncovered three critical bugs in UART and one control-path bug in the SoC in 
+less than a minute. 
 
-A FW exercises only a fragment of the HW state-space for a given scenario.  
+In practise, a FW exercises only a fragment of the HW state-space for a given scenario.  
 This renders many interactions between HW and FW transactions infeasible.   
 Our general observation is that bounded model checking technique in \hwcbmcv 
 cannot prune irrelevant transactions with respect to a given scenario, 
