@@ -1066,7 +1066,7 @@ model that contains a scenario and its corresponding HW and FW transactions.
 %===============================================================================
 %
 We report experimental results for FW-HW co-verification of a UART IP and a
-SoC design.  All our experiments were performed on an Intel Xeon 3.07\,GHz
+SoC design.  All our experiments were performed on an Intel\textsuperscript{\textregistered} Xeon\textsuperscript{\textregistered} 3.07\,GHz
 machine with 48\,GB RAM.  All times reported are in seconds.  The timeout 
 for all our experiments was set to 2~hours.  
 %
@@ -1138,7 +1138,7 @@ Column~6 gives the verification times using \verifox.  Column~7 report
 the verification outcome. The focus of our experiment is to compare 
 the performance of path-based technique with monolithic BMC approach for 
 co-verification.  We observe similar performance of bit-level and word-level 
-flow in \hwcbmcv. So, we only report bit-level results for \hwcbmcv in this paper. \\ 
+flow in \hwcbmcv. So, we only report bit-level results for \hwcbmcv in this paper. \sjcmt{I think this can backfire. The reivewers may ask why were other results not reported if available}\\ 
 \textbf{\emph{Safety properties:}}
 We verify a total of~17 transaction level properties and~22 component level 
 properties of the UART IP.  Table~\ref{table:safe} reports some of the
@@ -1158,7 +1158,7 @@ The bug in the UART data-path is manifested in the transmission mode when no
 interrupt is enabled.  The bug occurs when the transmitted data overlaps
 with the start and stop bits resulting in incorrect bit pattern in the
 serial output of the transmitter.  However, when the interrupt is enabled
-during transmission mode, the bug in the control-path of the transmitter
+during the transmission mode, the bug in the control-path of the transmitter
 module is triggered which deactivates the transmitter $empty$ signal.  This
 illegally prevents any transmitter interrupt to occur even when the
 transmitter buffer is empty, thereby violating the data transfer protocol. 
@@ -1170,7 +1170,7 @@ data in loopback mode leading to a control bug.
 
 Table~\ref{table:safe} shows that path-based symbolic execution dominates
 monolithic BMC in all scenarios (marked bold).  The average speedup for
-proving safety properties is on average $21\times$ for \verifox over
+proving safety properties is on average $21\times$ \sjcmt{is it average for table 3 only? or also table 4?} for \verifox over
 \hwcbmcv.  The average speedup for detecting bugs is $48\times$ on average 
 for \verifox over \hwcbmcv.  Thus, \verifox outperforms \hwcbmcv 
 in all scenarios. 
@@ -1255,13 +1255,13 @@ transmit (64) & 520 & 31.35 & 247104/362 & 99.85 &
 
 \textbf{\emph{About the SoC:}}
 %
-We obtained an open source System-on-a-Chip design
+We obtained an open source System-on-a-Chip \sjcmt{or is it System-on-Chip?} design
 from~\cite{DBLP:conf/fmcad/SubramanyanVRM15}.  It consists of an 8051
 micro-controller, a memory arbiter, an external memory (XRAM) and
 cryptographic accelerators, as shown in Figure~\ref{fig:soc}.  
 The design statistics for SoC is given in
 Table~\ref{table:stats}.  The accelerator implements encryption/decryption 
-using the Advanced Encryption Standard (AES).  There is a separate 
+using the Advanced Encryption Standard (AES) \sjcmt{cite if possible}.  There is a separate 
 module that interfaces the AES to the 8051 micro-controller using 
 a memory-mapped I/O interface.  The micro-controller communicates 
 with the accelerators and the XRAM by reading or writing to 
@@ -1317,6 +1317,7 @@ appropriate memory-mapped registers in the FW.
 \label{table:SoC}}
 \end{table}
 %
+
 \textbf{\emph{Discussion of the result:}}
 %
 Table~\ref{table:SoC} gives the runtimes for bounded safety proofs of 
@@ -1333,7 +1334,7 @@ component level properties for the SoC co-design.  Due to space
 limitations, we describe some representative properties.  We check
 whether the acknowledgment for data transmission and data reception arrives
 from the micro-controller in the correct cycle.  We verify whether the
-non-deterministic data transmitted through $outb()$ is the same
+non-deterministic data transmitted through $outb()$ is the same as 
 the data received through $inb()$.  We also verify that
 reading/writing to the appropriate memory-mapped registers produce the
 correct result during the data transmission phase.\\ 
@@ -1373,10 +1374,10 @@ In particular, our path-based algorithm in \verifox is able to suitably exploit
 this interaction behavior in a sequential co-verification model through symbolic 
 execution which generates relevant scenario/transaction pairs.  However, this approach 
 is not applicable for co-designs that exhibits true concurrency~\cite{concurrency}, 
-that is, a FW its interacting HW threads do not show producer-consumer relationship.  
+that is, a FW and its interacting HW threads do not show producer-consumer relationship.  
 In this case, it is imperative to consider all possible interleavings between participating 
-threads in an effecient manner.  However, our experience is that such 
-co-designs occurs rarely in practise. 
+threads in an efficient manner.  However, our experience is that such 
+co-designs occur rarely in practise. 
 
 
 % ===============================================================================
