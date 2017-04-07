@@ -607,7 +607,7 @@ transmitter} as well as {\em receiver} module.
 %
 \section{Proposed Methodology}
 %
-\subsection{Approach 1: Path-based Co-verification Technique}
+\subsection{Approach 1: Path-based Co-verification}
 %
 Figure~\ref{proposed-flow} describes our overall tool framework. In the
 subsequent section, we describe each step in detail.\\ 
@@ -893,7 +893,7 @@ is then passed to the symbolic execution engine for path-based exploration. \\
 %=======================================================================================
 \input{verifox}
 %
-\subsection{Approach 2: Monolithic Co-verification Technique}
+\subsection{Approach 2: Monolithic Co-verification}
 %
 \begin{figure}[t]
 \begin{center}
@@ -960,7 +960,7 @@ The hardware and firmware run independently of each other.
 The communication between them takes place through these function calls. 
 }
 %===============================================================================
-\section{Property Specification for Co-verification}\label{property}
+\section{Co-verification Property}\label{property}
 %===============================================================================
 Lack of support for property specification in a HW/SW co-design is one of the
 stumbling blocks for the application of formal techniques in co-verification.  
@@ -1082,7 +1082,13 @@ model that contains a scenario and its corresponding HW and FW transactions.
 We report experimental results for FW-HW co-verification of a UART  and a
 SoC design.  All our experiments were performed on an Intel Xeon 3.07\,GHz
 machine with 48\,GB RAM.  All times reported are in seconds.  The timeout 
-for all our experiments was set to 2~hours.  
+for all our experiments was set to 2~hours.  The performance of bit-level 
+and word-level flow in \hwcbmcv are similar. So, we only report bit-level 
+results for \hwcbmcv.  MiniSAT-2.2.0~\cite{DBLP:conf/sat/EenB05} was used 
+as underlying SAT solver with \hwcbmcv and \verifox.  The focus of our 
+experiments is to compare the performance of path-based technique in \verifox 
+with monolithic BMC approach in \hwcbmcv for verification of UART and SoC design.  
+\\ 
 %
 
 \textit{\textbf{State-of-the-art Co-verification tools:}} 
@@ -1149,12 +1155,8 @@ firmware.  Column~3 present the co-verification times using \hwcbmcv
 at the bit-level.  Column~4~and~5 report the total/feasible path counts and the 
 percentage of infeasible paths pruned for each scenario in \verifox.  
 Column~6 gives the verification times using \verifox.  Column~7 report 
-the verification outcome. The focus of our experiment is to compare 
-the performance of path-based technique with monolithic BMC approach for 
-co-verification.  We observe similar performance of bit-level and word-level 
-flow in \hwcbmcv. So, we only report bit-level results for \hwcbmcv in this
-paper. \\ 
-%\sjcmt{I think this can backfire. The reivewers may ask why were other results not reported if available}\\ 
+the verification outcome.\\ 
+%
 \textbf{\emph{Safety properties:}}
 We verify a total of~17 transaction level properties and~22 component level 
 properties of the UART .  Table~\ref{table:safe} reports some of the
@@ -1259,7 +1261,7 @@ transmit (64) & 520 & 31.35 & 247104/362 & 99.85 &
 }
 \end{center}
 %\vspace{-1.3mm}
-\caption{Verification times for UART design
+  \caption{Verification of UART (All time in seconds)
 \label{table:safe}}
 \end{table}
 
@@ -1312,7 +1314,7 @@ appropriate memory-mapped registers in the FW. \\
 \cline{3-5}
       &       & Bit-level Netlist & $\mathcal{M}_{seq}$ & Safe/Unsafe \\
 \cline{1-5}
-      &       &   Time      & Time &  \\
+      &       &   Time (seconds)       & Time (seconds) &  \\
 \cline{1-5}      
 \multicolumn{5}{|c|}{non-deterministic data and non-deterministic control} \\ \hline
   data\_transfer & 20 & 86.18 & \textbf{17}.\textbf{42} & Safe $(\psi_{t})$ \\
@@ -1329,7 +1331,7 @@ appropriate memory-mapped registers in the FW. \\
 }
 \end{center}
 %\vspace{-1.3mm}
-\caption{Verification times for SoC Design
+  \caption{Verification times for SoC Design (All time in Seconds)
 \label{table:SoC}}
 \end{table}
 %
