@@ -132,10 +132,16 @@ detecting firmware/hardware bugs.
 %
 Hardware/software co-verification is broadly performed at two different
 phases in the design cycle: pre-Register Transfer Level (pre-RTL) and 
-post-RTL.  In the pre-RTL phase,
-engineers write high-level software (SW) models for Intellectual Property (), 
-which are commonly known as {\em Transaction Level Model}s
-(TLM)~\cite{codes14}.  TLMs are typically implemented using the SystemC TLM
+post-RTL.  In the pre-RTL phase, engineers write high-level 
+software (SW) models for Intellectual Property, which are commonly 
+known as {\em Transaction Level Model}s (TLM)~\cite{codes14}.  The 
+TLM models are used to verify high-level functionality of the 
+system well before the RTL is available~\cite{codes14,codes15}. 
+Co-verification of the TLM and the SW is typically performed 
+by means of testing~\cite{hvc,codes14}.
+
+\Omit{
+TLMs are typically implemented using the SystemC TLM
 library~\cite{tlm} or as plain C programs.  The goal of a TLM is to capture
 enough functionality of the hardware (HW) such that it is possible to execute the
 SW (drivers or firmware (FW)) against it.  Consequently, the TLMs are
@@ -145,6 +151,7 @@ are often not cycle-accurate.  These models are used to verify high-level
 functionality of the system well before the RTL is
 available~\cite{codes14,codes15}. Co-verification of the TLM and the
 SW is typically performed by means of testing~\cite{hvc,codes14}.
+}
 
 In the post-RTL phase, when the RTL design is available, hardware/software
 co-verification becomes more complex.  Unlike the TLM, which only captures
@@ -167,8 +174,8 @@ co-designs that can precisely capture the design intent of the
 communication between FW and HW, 3) large
 number of interleavings between HW and FW threads, and 4) lack 
 of automated formal tools that support co-designs implemented in C/C++ and 
-Verilog/VHDL.   In this paper, we address some of these challenges to apply 
-formal techniques in hardware/software co-verification.   
+Verilog/VHDL.   In this paper, we address some of these challenges in 
+hardware/software co-verification at post-RTL phase. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -933,7 +940,7 @@ satisfiability using an efficient SAT or SMT procedure.
 \neg P(x_i) \]
 %
 Thus, BMC exploits the finiteness of $M$ and creates k copies of the
-$M$ for each unrolling \sjcmt{not always true}.
+$M$ for each unrolling. 
 
 
 %\hwcbmcv provides specific handshake primitives such
@@ -1272,7 +1279,7 @@ micro-controller, a memory arbiter, an external memory (XRAM) and
 cryptographic accelerators, as shown in Figure~\ref{fig:soc}.  
 The design statistics for SoC is given in
 Table~\ref{table:stats}.  The accelerator implements encryption/decryption 
-using the Advanced Encryption Standard (AES) \sjcmt{cite if possible}.  There is a separate 
+using the Advanced Encryption Standard (AES).  There is a separate 
 module that interfaces the AES to the 8051 micro-controller using 
 a memory-mapped I/O interface.  The micro-controller communicates 
 with the accelerators and the XRAM by reading or writing to 
