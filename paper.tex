@@ -498,7 +498,7 @@ instance of a use case.
 %
 \begin{figure}[t]
 \scalebox{.55}{\import{figures/}{st.pspdftex}}
-\caption{Scenario and Firmware Transaction
+  \caption{Scenario (left) and Firmware Transactions (right)
 \label{fig:st}}
 \end{figure}
 
@@ -568,8 +568,8 @@ $t_1$.  At $t_1$, the predicate, $cs$, is computed based on HW input
 signals, $cyc\_i$, $stb\_i$, $adr\_i$ and $we\_i$.  Assuming that $cs\_i
 \&\& we\_i$ holds true, the execution proceeds to step $t_4$ which computes
 predicates based on the values in $adr\_i$.  The next step is determined by
-the values of predicates, $'UART\_MC, 'UART\_IE, 'UART\_CT$.  Assuming that
-$'UART\_MC$ holds true, the execution proceeds to $t_6$.  During the
+the values of predicates, $UART\_MC, UART\_IE, UART\_CT$.  Assuming that
+$UART\_MC$ holds true, the execution proceeds to $t_6$.  During the
 execution of $t_6$, three parallel state update $(dtr\_no, rts\_no,
 loopback)$ and two predicate evaluation ($\beta_1,\beta_2)$ is performed
 based on the updates to state elements.  After $t_6$, the execution of
@@ -622,16 +622,17 @@ subsequent section, we describe each step in detail.\\
 \textbf{Step 1: RTL to Software}
 A hardware circuit in Verilog RTL is automatically 
 translated into a C program, called a 
-\textit{software netlist}~\cite{mtk2016,mskm2016,mkm2015} following synthesis 
+\textit{software netlist}~\cite{mtk2016} following synthesis 
 semantics. The software netlist model is cycle-accurate as well as 
 bit-precise~\footnote{http://www.cprover.org/hardware/v2c/}. The 
 translation automatically handles concurrent statements 
 in Verilog such as procedural blocks and continuous assignments, multiple {\em always}
 blocks, and communication between modules.  This is a radically new 
 but promising approach for synthesizing software 
-models from RTL description, primarily targeted for word-level formal verification.  
-To the best of our knowledge, this is the first attempt to demonstrate the 
-efficacy of such a translation in the context of hardware/software co-verification. 
+models from RTL description, primarily targeted for formal 
+verification~\cite{mtk2016,mskm2016,mkm2015}.  To the best of our knowledge, 
+this is the first attempt to demonstrate the efficacy of such a 
+translation in the context of hardware/software co-verification. 
 % 
 A \textit{software netlist} $\mathcal{SN}$ is defined as follows:
 %
@@ -767,7 +768,7 @@ in $V'$ and $V$, respectively.
 
 
 Figure~\ref{fig:interleaving1} illustrates the producer-consumer relationship 
-in UART . The FW CFG is shown in the left and the HW RTL code snippet 
+in UART. The FW CFG is shown in the left and the HW RTL code snippet 
 is shown in the right. We abuse notations and 
 represent $\mathcal{HT}$ in the form of RTL and $\mathcal{FT}$ as CFG
 for illustration purpose. Here, $\mathcal{HT}$ is the producer of interrupt 
@@ -795,12 +796,12 @@ The description above the arrows
 in column 1 shows the events in $\mathcal{FT}$ and the letter below the
 arrows denotes the event type, producer $(\mathcal{P})$ or consumer 
 $(\mathcal{C})$. Arrows with empty description below denotes reading of interface
-variables or local variables in $\mathcal{FT}$.  Arrows with no description
+signals or local FW variables in $\mathcal{FT}$.  Arrows with no description
 simply denotes control-flow join.  The entries in the right column of
 Table~\ref{transaction} shows the corresponding transactions in HW.  We 
-denote a transaction in HW module with the name of the module,
-transmitter module in UART ($uart\_tx$), receiver module in UART ($uart\_rx$), or
-the top UART module ($uart\_top$).
+denote a transaction in HW with the name of the module, transmitter module 
+in UART ($uart\_tx$), receiver module in UART ($uart\_rx$), or the top 
+UART module ($uart\_top$).
 %
 \begin{table}
 \begin{center}
@@ -869,7 +870,7 @@ conditional, sequential concatenation or a loop.
 $\mathit{moduleName(Var_1,\dots,Var_n)}$ invokes the top level 
 procedure of $\mathcal{SN}$, which is also the top level 
 module of the HW RTL, since the translation from RTL to software preserves
-the module hierarchy.  The interface variables $\{Var\_1,\dots,Var\_n\}$ 
+the module hierarchy.  The interface signals $\{Var\_1,\dots,Var\_n\}$ 
 (input, output and inout ports) are declared inside the 
 FW to communicate with $\mathcal{SN}$.  Figure~\ref{compose} shows the 
 composition of $\mathcal{SN}$ and FW transaction for UART.
@@ -924,7 +925,7 @@ Similarly, translating a C program into an SSA representation is a
 standard technique which is widely used in 
 software verification tools, such as CBMC~\cite{cbmc.tacas:2004}. 
 \hwcbmcv generates a monolithic co-verification model from AIG and SSA through 
-in-tandem symbolic execution of HW and FW components.  
+in-tandem symbolic execution of HW and FW models.  
 
 \textbf{Step 2: Bounded Model Checking}
 %
@@ -1023,7 +1024,7 @@ bool monitor_P2() {
 \subsection{Component level Property}
 %-------------------------------------------------------------------------------
 A {\em component level} property ($\psi_{c}$) is defined purely at the 
-level of individual components of a co-design system. Recall that a component 
+level of individual components of a co-design. Recall that a component 
 may be a HW model, a SW model or an interface model which contains only the 
 interface logic.  A component-level property captures the design intent of a 
 component in terms of its input/output behaviors.  This type of property 
@@ -1367,12 +1368,12 @@ $2\times$ faster than \hwcbmcv for proving safety.  For detecting bugs,
 the speedup is $6\times$ for \verifox over \hwcbmcv. \\ 
 \textbf{\emph{Monolithic versus Path-based:}}
 The reason for better scalability of \verifox compared to 
-\hwcbmcv is attributed to the path-based exploration of a 
+\hwcbmcv is attributed to the path-based exploration of the 
 sequential co-verification model using eager path pruning and 
 incremental SAT solving to automatically mine relevant scenario/transaction
-pairs.  In the case of SoC, the FW exercises only the micro-controller 
-and transfer sequence of bytes to the XRAM port bypassing peripherals 
-connected to other ports such as hardware accelerator.  
+pairs.  In the case of SoC scenario (data\_transfer), the FW exercises 
+only the micro-controller and transfer sequence of bytes to the XRAM port 
+bypassing peripherals connected to other ports such as hardware accelerator.  
 This scenario allows path-based exploration techniques to prune the logic for
 accelerator and thereby generate only relevant scenario/transaction pairs.  It 
 is important to note that forward symbolic execution without these optimizations 
@@ -1389,16 +1390,15 @@ contain irrelevant logic and are therefore difficult to solve.
 The primary motivation for constructing a sequential single threaded unified 
 co-verification model is to avoid enumerating exponential number of interleavings 
 between the HW and FW threads.  We have shown that this is extremely beneficial for 
-co-designs that exhibits producer-consumer relationship.  
+co-designs that exhibits producer-consumer relationship.  Such interaction pattern 
+is prevalent in many practical co-designs~\cite{polig2014micro,polig2014fpl,giefers2015accelerating,hvc}. 
 In particular, our path-based algorithm in \verifox is able to suitably exploit 
 this interaction behavior in a sequential co-verification model through symbolic 
 execution by generating relevant scenario/transaction pairs.  However, this approach 
 is not applicable for co-designs that exhibits true concurrency~\cite{codesign}, 
 that is, a FW and its interacting HW threads do not show producer-consumer relationship.  
 In this case, it is imperative to consider all possible interleavings between participating 
-threads in an efficient manner.  To the best of our knowledge, the producer-consumer 
-interaction pattern is prevalent in many practical 
-co-designs~\cite{polig2014micro,polig2014fpl,giefers2015accelerating,hvc}. 
+threads in an efficient manner.  
 
 
 % ===============================================================================
