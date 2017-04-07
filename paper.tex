@@ -721,15 +721,15 @@ void top(_Bool clk, unsigned a) {
 \textbf{Step 2: Sequentialization based on Transaction Interaction}
 %
 Concurrency is at the heart of co-verification.  Testing concurrent 
-threads requires exploring all possible interleavings between a HW 
-and FW thread.  The number of interleavings could be potentially 
+threads requires exploring all possible interleavings between HW 
+and FW threads.  The number of interleavings could potentially be  
 exponential.  However,~\cite{codes14,hvc} showed that the 
-interaction between a FW thread and HW thread follows a 
+interaction between a FW thread and a HW thread follows a 
 producer-consumer relationship. That is, a FW 
 thread is mostly independent of the HW thread they interact with~\cite{hvc,codes14}.  
 Specifically, a FW thread is only responsible for configuring the 
-HW transactions by writing to memory mapped registers or polling 
-the interrupt status register for data transmission or receiving 
+HW transactions by writing to memory mapped registers, or polling 
+the interrupt status register for data transmission, or receiving 
 incoming data packets. 
 
 
