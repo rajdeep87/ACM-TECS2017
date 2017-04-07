@@ -1456,13 +1456,9 @@ In this paper, we presented two different approaches for formal verification of
 HW/SW co-designs -- \emph{monolithic} and \emph{path-based}.  These approaches are 
 embodied in our tools, \hwcbmcv and \verifox, respectively.  Our tools support 
 co-designs written in Verilog RTL and C.  We also presented a specification language to 
-effectively capture co-design properties.  
-%To this end, we classify co-design properties into two types --  \emph{transaction level} and \emph{component level} property.  
-We proved several transaction and component level properties of UART and SoC
-design using \hwcbmcv and \verifox.  
-%We for proving safety as well as finding critical co-design bugs for a UART IP and a complex SoC design.  
-We uncovered three critical bugs in UART and one control-path bug in the SoC 
-within only couple of minutes. 
+effectively capture co-design properties.  We proved several transaction and component 
+level properties of UART and SoC design using \hwcbmcv and \verifox.  We uncovered three 
+critical bugs in UART and one control-path bug in the SoC within only couple of minutes. 
 
 In practice, a FW exercises only a fragment of the HW state-space for a given scenario.  
 This renders many interactions between HW and FW transactions infeasible.   
@@ -1474,9 +1470,9 @@ a path-based exploration strategy in \verifox is able to automatically
 mine relevant scenario/transaction pairs in a sequential co-verification 
 model, owing to specific optimizations such as eager path pruning
 combined with incremental SAT solving.  Our experiments show that \verifox 
-is on average $5\times$ faster than \hwcbmcv for proving safety as well as 
-bug finding.  In the future, we plan to extend our framework to co-design 
-models that exhibit further interaction patterns.
+is on average $5\times$ faster than \hwcbmcv for proving safety as well as bug
+finding.  In the future, we plan to extend our framework to co-design 
+that exhibit further interaction patterns.
 
 %\bibliographystyle{ACM-Reference-Format}
 \bibliographystyle{abbrv}
