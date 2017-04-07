@@ -49,7 +49,7 @@
 \newcommand{\abc}{\tool{ABC}}
 \newcommand{\yosys}{\tool{Yosys 0.5}}
 \newcommand{\verifoxver}{\tool{VerifOx 0.1}}
-\newcommand{\verifox}{\tool{CoVeriIf}}
+\newcommand{\verifox}{\tool{CoVerIf}}
 \newcommand{\iimc}{\tool{iimc}}
 \newcommand{\klee}{\tool{klee}}
 \newcommand{\symbiotic}{\tool{symbiotic}}
@@ -106,11 +106,11 @@ of the hardware RTL from the behavior expected by the software.  Formal
 methods can deliver a proof that the RTL and the firmware match, but are
 difficult to scale up.  We propose to identify partitions of the firmware and
 the RTL that follow transaction boundaries by means of path-based symbolic
-simulation with custom path-pruning.  We have implemented this approach in
-our tool \verifox.  We have experimentally compared \verifox with a
-conventional approach, which constructs a single monolithic SAT/SMT
-instance, and observe speedup of an order of magnitude over conventional 
-approach for proving safety properties as well as detecting firmware/hardware bugs.
+simulation with custom path-pruning.  We have implemented this approach in 
+our tool \verifox.  We have experimentally compared \verifox with \hwcbmcv, 
+which constructs a single monolithic SAT/SMT instance, and observe speedup of 
+an order of magnitude over \hwcbmcv for proving safety properties as well as 
+detecting firmware/hardware bugs.
 %
 \end{abstract}            
 
@@ -1372,12 +1372,12 @@ between the HW and FW threads.  We have shown that this is extremely beneficial 
 co-designs that exhibits producer-consumer relationship.  
 In particular, our path-based algorithm in \verifox is able to suitably exploit 
 this interaction behavior in a sequential co-verification model through symbolic 
-execution which generates relevant scenario/transaction pairs.  However, this approach 
-is not applicable for co-designs that exhibits true concurrency~\cite{concurrency}, 
+execution by generating relevant scenario/transaction pairs.  However, this approach 
+is not applicable for co-designs that exhibits true concurrency~\cite{codesign}, 
 that is, a FW and its interacting HW threads do not show producer-consumer relationship.  
 In this case, it is imperative to consider all possible interleavings between participating 
-threads in an efficient manner.  However, our experience is that such 
-co-designs occur rarely in practise. 
+threads in an efficient manner.  Fortunately, a producer-consumer interaction pattern is
+prevelant in many practical co-designs~\cite{polig2014micro,polig2014fpl,giefers2015accelerating,hvc}. 
 
 
 % ===============================================================================
@@ -1431,27 +1431,28 @@ a unified co-verification model.
 \section{Concluding Remarks}
 %===============================================================================
 %
-In this paper, we presented two approaches for verification of 
-HW/SW co-designs using formal techniques.  These approaches are 
-embodied in our tools \hwcbmcv and \verifox.  We presented a 
-notion of scenario and transaction for effective verification 
-of co-designs.  To this end, we presented a path-based algorithm
-to automatically mine scenario/transaction pairs.  We showed that 
-the construction of a co-verification model must leverage specification of 
-co-design properties over hardware and firmware events in order to 
-successfully apply formal methods in co-verification.  To enable this, we 
-presented two types of co-design properties, \emph{transaction level} and 
-\emph{component level}.  Our tools support co-designs written in Verilog RTL 
-and C.   
+In this paper, we presented two different approaches for formal verification of 
+HW/SW co-designs -- \emph{monolithic} and \emph{path-based}.  These approaches are 
+embodied in \hwcbmcv and \verifox.  Our tools support co-designs written 
+in Verilog RTL and C.  We also presented a specification language to 
+effectively capture co-design properties.  To this end, we classify co-design 
+properties into two types --  \emph{transaction level} and \emph{component level} 
+property.  We successfully demonstrate the application of \hwcbmcv and \verifox 
+for proving safety as well as finding critical co-design bugs for 
+a UART IP and a complex SoC design.  
 
-Our general observation is that monolithic BMC based approaches 
+A FW exercises only a fragment of the HW state-space for a given scenario.  
+This renders many interactions between HW and FW transactions infeasible.   
+Our general observation is that bounded model checking technique in \hwcbmcv 
 cannot prune irrelevant transactions with respect to a given scenario, 
-and hence generate very complex formulas, which are difficult to solve. 
-Owing to specific optimizations in \verifox such as eager path pruning
-combined with incremental SAT solving, we experimentally show that \verifox
-is an order of magnitude faster than the \hwcbmcv.  We demonstrate applicability of our
-approach for proving safety as well as finding critical co-design bugs for 
-a UART IP and a complex SoC design.  In the future, we plan to extend our 
+and hence generate a monolithic co-verification model, which are often 
+extremely difficult to solve with a SAT/SMT solver. On the other hand, 
+a path-based exploration strategy in \verifox is able to automatically 
+mine relevant scenario/transaction pairs in a sequential co-verification 
+model, owing to specific optimizations such as eager path pruning
+combined with incremental SAT solving.  Our experiments show that \verifox 
+is an order of magnitude faster than \hwcbmcv for proving safety as well as 
+bug finding.  In the future, we plan to extend our 
 framework to co-design models that exhibit further interaction patterns.
 
 %\bibliographystyle{ACM-Reference-Format}
