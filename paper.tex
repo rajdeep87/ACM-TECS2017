@@ -959,7 +959,7 @@ classes -- {\em transaction level} property and {\em component level} property.
 \subsection{Transaction level Property}
 %-------------------------------------------------------------------------------
 A {\em Transaction level} property ($\psi_{t}$) formally captures the 
-design intent of the interaction between a $\mathcal{ST}$ and $\mathcal{HT}$, 
+design intent of the interaction between a $\mathcal{ST}$\sjcmt{shouldn't it be FT?} and $\mathcal{HT}$, 
 that is, it is defined at the transaction boundaries.  
 Recall that a $\mathcal{ST}$ is a service in response to some external environment 
 or HW interrupts (for example acknowledgement or exceptions). Similarly, 
@@ -1018,8 +1018,8 @@ Note that unlike the structure of $\psi_{t}$ which requires the antecedent
 or consequent to be a HW or SW event,  $\psi_{c}$ only contains signals 
 (ports) or variables of a particular component.  Figure~\ref{figure:component} 
 shows an example of component level property for the UART HW only.  The 
-System Verilog Assertion (SVA) is shown in the left and the equivalent 
-monitor in C is shown in right.  
+System Verilog Assertion (SVA) is shown on the left and the equivalent 
+monitor in C is shown on the right.  
 %
 \begin{figure}[htbp]
 \scriptsize
@@ -1052,8 +1052,8 @@ bool monitor_P3() {
 %-------------------------------------------------------------------------------
 \subsection{Debugging Using Counterexample Trace}
 %-------------------------------------------------------------------------------
-A failure of co-design property implies a fault in HW or defective FW 
-or bug in the interface functions.  Hence, an important feature of a
+A failure of co-design property implies a fault in HW, or a defective FW, 
+or a bug in the interface functions.  Hence, an important feature of a
 co-verification tool is its ability to produce a counterexample trace 
 in order to localize the bug.  \hwcbmcv generates a counterexample
 trace in value change dump (vcd) format that contains concrete assignments to FW
