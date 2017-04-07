@@ -49,7 +49,7 @@
 \newcommand{\abc}{\tool{ABC}}
 \newcommand{\yosys}{\tool{Yosys 0.5}}
 \newcommand{\verifoxver}{\tool{VerifOx 0.1}}
-\newcommand{\verifox}{\tool{CoVeriIf}}
+\newcommand{\verifox}{\tool{CoVerIf}}
 \newcommand{\iimc}{\tool{iimc}}
 \newcommand{\klee}{\tool{klee}}
 \newcommand{\symbiotic}{\tool{symbiotic}}
@@ -106,11 +106,11 @@ of the hardware RTL from the behavior expected by the software.  Formal
 methods can deliver a proof that the RTL and the firmware match, but are
 difficult to scale up.  We propose to identify partitions of the firmware and
 the RTL that follow transaction boundaries by means of path-based symbolic
-simulation with custom path-pruning.  We have implemented this approach in
-our tool \verifox.  We have experimentally compared \verifox with a
-conventional approach, which constructs a single monolithic SAT/SMT
-instance, and observe speedup of an order of magnitude over conventional 
-approach for proving safety properties as well as detecting firmware/hardware bugs.
+simulation with custom path-pruning.  We have implemented this approach in 
+our tool \verifox.  We have experimentally compared \verifox with \hwcbmcv, 
+which constructs a single monolithic SAT/SMT instance, and observe speedup of 
+an order of magnitude over \hwcbmcv for proving safety properties as well as 
+detecting firmware/hardware bugs.
 %
 \end{abstract}            
 
@@ -722,15 +722,15 @@ void top(_Bool clk, unsigned a) {
 \textbf{Step 2: Sequentialization based on Transaction Interaction}
 %
 Concurrency is at the heart of co-verification.  Testing concurrent 
-threads requires exploring all possible interleavings between a HW 
-and FW thread.  The number of interleavings could be potentially 
-exponential.  However,~\cite{codes14,hvc} showed that the 
-interaction between a FW thread and HW thread follows a 
-producer-consumer relationship. That is, a FW 
-thread is mostly independent of the HW thread they interact with~\cite{hvc,codes14}.  
-Specifically, a FW thread is only responsible for configuring the 
-HW transactions by writing to memory mapped registers or polling 
-the interrupt status register for data transmission or receiving 
+threads requires exploring all possible interleavings between HW 
+and FW threads.  The number of interleavings could potentially be  
+exponential.  However, we observe a specific interaction pattern, 
+which resembles a producer-consumer relationship.  
+That is, a FW thread is mostly independent of the HW 
+thread they interact with~\cite{hvc,codes14}.  Specifically, 
+a FW thread is only responsible for configuring the 
+HW transactions by writing to memory mapped registers, or polling 
+the interrupt status register for data transmission, or receiving 
 incoming data packets. 
 
 
@@ -761,10 +761,10 @@ in $V'$ and $V$, respectively.
 
 
 Figure~\ref{fig:interleaving1} illustrates the producer-consumer relationship 
-in UART . The FW CFG is shown in the left and the 
-HW RTL code snippet is shown in the right. We abuse notations and 
+in UART . The FW CFG is shown in the left and the HW RTL code snippet 
+is shown in the right. We abuse notations and 
 represent $\mathcal{HT}$ in the form of RTL and $\mathcal{FT}$ as CFG
-for our illustration purpose. Here, $\mathcal{HT}$ is the producer of interrupt 
+for illustration purpose. Here, $\mathcal{HT}$ is the producer of interrupt 
 status signal, $irq\_o$, which is read by $\mathcal{FT}$ in state $s_1$. 
 The signal $irq\_o$ is  triggered when transmitter buffer is 
 {\em EMPTY} or receiver buffer is {\em FULL}. 
@@ -844,7 +844,7 @@ $next\_timeframe()$.  Furthermore, a software
 netlist is a sequential model of HW RTL which is represented in C.  Thus, the
 composition leads to a single-threaded sequential co-verification model in C.  
 %
-We now formally define a our co-verification model, denoted by 
+We now formally define our co-verification model, denoted by 
 $\mathcal{M}_{seq}$.
 %
 \[ 
@@ -909,12 +909,12 @@ In contrast to path-based approach,
 Figure~\ref{fig:conventional} uses synthesis to obtain either a bit-level or
 a word-level netlist from Verilog RTL.  A bit-level netlist is represented 
 in And Inverter Graph (AIG) format.  Whereas, a word-level netlist is represented 
-in format that resembles SMT-LIB2
-standards~\footnote{http://smtlib.cs.uiowa.edu/}.  The bottom flow illustrates the
-translation of C program into static single assignment (SSA) form. 
+in format that resembles SMT-LIB2 standards~\footnote{http://smtlib.cs.uiowa.edu/}.  
+The bottom flow illustrates the translation of C program 
+into static single assignment (SSA) form. 
 Synthesizing netlist from RTL is a standard technique which is widely 
 used in hardware model checkers~\cite{DBLP:journals/tse/Clarke76}.
-Similarly, translating a C program into a SSA representation is a 
+Similarly, translating a C program into an SSA representation is a 
 standard technique which is widely used in 
 software verification tools, such as CBMC~\cite{cbmc.tacas:2004}. 
 \hwcbmcv generates a monolithic co-verification model from AIG and SSA through 
@@ -923,7 +923,7 @@ in-tandem symbolic execution of HW and FW components.
 \textbf{Step 2: Bounded Model Checking}
 %
 The co-verification model is checked with bounded model checking (BMC).
-Given an unwind depth depth~$k$ and a co-design property $P$, BMC operates
+Given an unwind depth~$k$ and a co-design property $P$, BMC operates
 by unwinding the co-verification model~$M$ up to depth~$k$ starting from
 initial state $x_0$, represented by an initial state predicate~$I$.
 This results in the following formula which is then checked for
@@ -933,7 +933,7 @@ satisfiability using an efficient SAT or SMT procedure.
 \neg P(x_i) \]
 %
 Thus, BMC exploits the finiteness of $M$ and creates k copies of the
-$M$ for each unrolling.
+$M$ for each unrolling \sjcmt{not always true}.
 
 
 %\hwcbmcv provides specific handshake primitives such
@@ -1026,8 +1026,8 @@ Note that unlike the structure of $\psi_{t}$ which requires the antecedent
 or consequent to be a HW or SW event,  $\psi_{c}$ only contains signals 
 (ports) or variables of a particular component.  Figure~\ref{figure:component} 
 shows an example of component level property for the UART HW only.  The 
-System Verilog Assertion (SVA) is shown in the left and the equivalent 
-monitor in C is shown in right.  
+System Verilog Assertion (SVA) is shown on the left and the equivalent 
+monitor in C is shown on the right.  
 %
 \begin{figure}[htbp]
 \scriptsize
@@ -1073,6 +1073,7 @@ model that contains a scenario and its corresponding HW and FW transactions.
 \section{Experimental Results}
 %===============================================================================
 %
+<<<<<<< HEAD
 We report experimental results for FW-HW co-verification of a UART  and a
 SoC design.  All our experiments were performed on an Intel Xeon 3.07\,GHz
 machine with 48\,GB RAM.  All times reported are in seconds.  The timeout 
@@ -1146,7 +1147,8 @@ Column~6 gives the verification times using \verifox.  Column~7 report
 the verification outcome. The focus of our experiment is to compare 
 the performance of path-based technique with monolithic BMC approach for 
 co-verification.  We observe similar performance of bit-level and word-level 
-flow in \hwcbmcv. So, we only report bit-level results for \hwcbmcv in this paper. \\ 
+flow in \hwcbmcv. So, we only report bit-level results for \hwcbmcv in this paper. 
+%\sjcmt{I think this can backfire. The reivewers may ask why were other results not reported if available}\\ 
 \textbf{\emph{Safety properties:}}
 We verify a total of~17 transaction level properties and~22 component level 
 properties of the UART .  Table~\ref{table:safe} reports some of the
@@ -1166,7 +1168,7 @@ The bug in the UART data-path is manifested in the transmission mode when no
 interrupt is enabled.  The bug occurs when the transmitted data overlaps
 with the start and stop bits resulting in incorrect bit pattern in the
 serial output of the transmitter.  However, when the interrupt is enabled
-during transmission mode, the bug in the control-path of the transmitter
+during the transmission mode, the bug in the control-path of the transmitter
 module is triggered which deactivates the transmitter $empty$ signal.  This
 illegally prevents any transmitter interrupt to occur even when the
 transmitter buffer is empty, thereby violating the data transfer protocol. 
@@ -1178,8 +1180,9 @@ data in loopback mode leading to a control bug.
 
 Table~\ref{table:safe} shows that path-based symbolic execution dominates
 monolithic BMC in all scenarios (marked bold).  The average speedup for
-proving safety properties is on average $21\times$ for \verifox over
-\hwcbmcv.  The average speedup for detecting bugs is $48\times$ on average 
+proving safety properties is on average $21\times$ 
+%\sjcmt{is it average for table 3 only? or also table 4?} 
+for \verifox over \hwcbmcv.  The average speedup for detecting bugs is $48\times$ on average 
 for \verifox over \hwcbmcv.  Thus, \verifox outperforms \hwcbmcv 
 in all scenarios. 
 
@@ -1269,7 +1272,7 @@ micro-controller, a memory arbiter, an external memory (XRAM) and
 cryptographic accelerators, as shown in Figure~\ref{fig:soc}.  
 The design statistics for SoC is given in
 Table~\ref{table:stats}.  The accelerator implements encryption/decryption 
-using the Advanced Encryption Standard (AES).  There is a separate 
+using the Advanced Encryption Standard (AES) \sjcmt{cite if possible}.  There is a separate 
 module that interfaces the AES to the 8051 micro-controller using 
 a memory-mapped I/O interface.  The micro-controller communicates 
 with the accelerators and the XRAM by reading or writing to 
@@ -1325,6 +1328,7 @@ appropriate memory-mapped registers in the FW.
 \label{table:SoC}}
 \end{table}
 %
+
 \textbf{\emph{Discussion of the result:}}
 %
 Table~\ref{table:SoC} gives the runtimes for bounded safety proofs of 
@@ -1341,7 +1345,7 @@ component level properties for the SoC co-design.  Due to space
 limitations, we describe some representative properties.  We check
 whether the acknowledgment for data transmission and data reception arrives
 from the micro-controller in the correct cycle.  We verify whether the
-non-deterministic data transmitted through $outb()$ is the same
+non-deterministic data transmitted through $outb()$ is the same as 
 the data received through $inb()$.  We also verify that
 reading/writing to the appropriate memory-mapped registers produce the
 correct result during the data transmission phase.\\ 
@@ -1356,10 +1360,12 @@ $5\times$ faster than \hwcbmcv for proving safety.  For detecting bugs,
 the speedup is $72\times$ for \verifox over \hwcbmcv. \\ 
 \textbf{\emph{Monolithic versus Path-based:}}
 The reason for better scalability of \verifox compared to 
-\hwcbmcv is attributed to the path-based exploration strategy combined 
-with eager path pruning and incremental SAT solving.  In the case of SoC, 
-the FW exercises only the micro-controller and transfer sequence of bytes to the XRAM port 
-bypassing peripherals connected to other ports such as hardware accelerator.  
+\hwcbmcv is attributed to the path-based exploration of a 
+sequential co-verification model using eager path pruning and 
+incremental SAT solving to automatically mine relevant scenario/transaction
+pairs.  In the case of SoC, the FW exercises only the micro-controller 
+and transfer sequence of bytes to the XRAM port bypassing peripherals 
+connected to other ports such as hardware accelerator.  
 This scenario allows path-based exploration techniques to prune the logic for
 accelerator and thereby generate only relevant scenario/transaction pairs.  It 
 is important to note that forward symbolic execution without these optimizations 
@@ -1379,12 +1385,12 @@ between the HW and FW threads.  We have shown that this is extremely beneficial 
 co-designs that exhibits producer-consumer relationship.  
 In particular, our path-based algorithm in \verifox is able to suitably exploit 
 this interaction behavior in a sequential co-verification model through symbolic 
-execution which generates relevant scenario/transaction pairs.  However, this approach 
-is not applicable for co-designs that exhibits true concurrency~\cite{concurrency}, 
-that is, a FW its interacting HW threads do not show producer-consumer relationship.  
+execution by generating relevant scenario/transaction pairs.  However, this approach 
+is not applicable for co-designs that exhibits true concurrency~\cite{codesign}, 
+that is, a FW and its interacting HW threads do not show producer-consumer relationship.  
 In this case, it is imperative to consider all possible interleavings between participating 
-threads in an effecient manner.  However, our experience is that such 
-co-designs occurs rarely in practise. 
+threads in an efficient manner.  Fortunately, a producer-consumer interaction pattern is
+prevelant in many practical co-designs~\cite{polig2014micro,polig2014fpl,giefers2015accelerating,hvc}. 
 
 
 % ===============================================================================
@@ -1407,18 +1413,18 @@ SW using finite state machines~\cite{fmsd02}, Monniaux in~\cite{emsoft07} modele
 HW and SW as C programs which are formally pushdown systems (PDS), 
 Li et al.~in~\cite{fase10} used Buchi Automata to abstractly
 model a hardware and PDS to abstractly model a software to generate a unified SW-HW model, 
-called Buchi Pushdown System ({\em BPDS}).  In this paper, we construct an unified 
+called Buchi Pushdown System ({\em BPDS}).  In this paper, we construct a unified 
 sequential co-verification model in C which enable us to automatically 
 generate {\em scenario/transaction} pairs using path-based symbolic execution. 
 
 A system is comprised of a set of concurrent FW and HW models, which
-interleave asynchronously.  However, we observe a specific interaction
-pattern, which resembles a producer-consumer relationship.  We conjecture
-that this producer-consumer interaction pattern is not specific to the UART
- or SoC designs used as exemplars in this paper.  Malik et
-al.~in~\cite{hvc} showed that these patterns are meaningful in further
+interleave asynchronously.  Malik et al.~in~\cite{hvc} showed 
+that these patterns are meaningful in further
 settings -- a Linux device driver interacting with x86 QEMU emulator code or
-a Rockbox firmware interacting with an iAudio X5 device.
+a Rockbox firmware interacting with an iAudio X5 device.  Practical industrial 
+co-designs, such as IBM Text Accelerator co-design~\cite{polig2014micro,polig2014fpl} 
+and IBM coherent FFT coprocessor~\cite{giefers2015accelerating} also exhibits
+producer-consumer interaction pattern. 
 
 Common practice in industry for system-level co-verification is to 
 either use emulators/accelerators or Instruction Set Simulators 
@@ -1438,28 +1444,29 @@ a unified co-verification model.
 \section{Concluding Remarks}
 %===============================================================================
 %
-In this paper, we presented two approaches for verification of 
-HW/SW co-designs using formal techniques.  These approaches are 
-embodied in our tool \hwcbmcv and \verifox.  We presented a 
-notion of scenario and transaction for effective verification 
-of co-designs.  To this end, we presented a path-based algorithm
-to automatically mine scenario/transaction pairs.  We showed that 
-the construction of a co-verification model must leverage specification of 
-co-design properties over hardware and firmware events in order to 
-successfully apply formal methods in co-verification.  To enable this, we 
-presented two types of co-design properties, \emph{transaction level} and 
-\emph{component level}.  Our tools support co-designs written in Verilog RTL 
-and C.   
+In this paper, we presented two different approaches for formal verification of 
+HW/SW co-designs -- \emph{monolithic} and \emph{path-based}.  These approaches are 
+embodied in \hwcbmcv and \verifox.  Our tools support co-designs written 
+in Verilog RTL and C.  We also presented a specification language to 
+effectively capture co-design properties.  To this end, we classify co-design 
+properties into two types --  \emph{transaction level} and \emph{component level} 
+property.  We successfully demonstrate the application of \hwcbmcv and \verifox 
+for proving safety as well as finding critical co-design bugs for 
+a UART IP and a complex SoC design.  
 
-Our general observation is that monolithic BMC based approaches 
+A FW exercises only a fragment of the HW state-space for a given scenario.  
+This renders many interactions between HW and FW transactions infeasible.   
+Our general observation is that bounded model checking technique in \hwcbmcv 
 cannot prune irrelevant transactions with respect to a given scenario, 
-and hence generate very complex formulas, which are difficult to solve. 
-Owing to specific optimizations in \verifox such as eager path pruning
-combined with incremental SAT solving, we experimentally show that \verifox
-is an order of magnitude faster than the \hwcbmcv.  We demonstrate applicability of our
-approach for proving safety as well as finding critical co-design bugs for 
-a UART  and a complex SoC design.  In the future, we plan to extend our 
-framework to co-design models that exhibit further interaction patterns.
+and hence generate a monolithic co-verification model, which are often 
+extremely difficult to solve with a SAT/SMT solver. On the other hand, 
+a path-based exploration strategy in \verifox is able to automatically 
+mine relevant scenario/transaction pairs in a sequential co-verification 
+model, owing to specific optimizations such as eager path pruning
+combined with incremental SAT solving.  Our experiments show that \verifox 
+is an order of magnitude faster than \hwcbmcv for proving safety as well as 
+bug finding.  In the future, we plan to extend our framework to co-design 
+models that exhibit further interaction patterns.
 
 %\bibliographystyle{ACM-Reference-Format}
 \bibliographystyle{abbrv}
