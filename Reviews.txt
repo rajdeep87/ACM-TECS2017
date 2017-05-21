@@ -1,0 +1,278 @@
+Dear Rajdeep Mukherjee:
+
+We are sorry to inform you that the following submission was not selected by the program committee to appear at CODES+ISSS 2017 as a full, journal-track paper:
+
+      Mining Scenario/Transaction Pairs in HW/SW
+           Co-verification Using Symbolic Execution
+
+However, the program committee really appreciated the key idea of this paper, and invites you to transform and resubmit your work as a 2-page Work-in-Progress (WiP) paper. Please note that accepted 2-page WIP papers will be published in the ESWeek 2017 proceedings, and therefore will be considered as a peer-reviewed and archived conference publication. 
+
+The deadline for resubmission as a WiP paper is June 7, 2017.
+To resubmit, you can use your original submission link:
+
+     https://www.softconf.com/g/codesisss2017/user/scmd.cgi?scmd=aLogin&passcode=166X-P3C6B8D9H2
+
+This year's selection process was extremely competitive. Due to time  and space limitations, we could only select a small number  of the submitted papers for the second review round of the  conference. In addition to that, we have also selected a few submissions (less than 25% of all submissions) to explicitly encourage them to resubmit as a WiP paper (of which your paper is one).
+
+We sincerely hope that you will consider resubmitting your work as a WiP paper.
+
+We have enclosed the reviewer comments for your perusal. In case you resubmit your work as a WiP paper, this review history will be taken into account in the review process of the WiP submission.
+
+If you have any additional questions, please feel free  to get in touch.
+
+Best Regards,
+Andy Pimentel and Aviral Shrivastava, TPC Chairs
+CODES+ISSS 2017
+
+============================================================================
+CODES+ISSS 2017 Reviews for Submission #166
+============================================================================
+
+Title: Mining Scenario/Transaction Pairs in HW/SW Co-verification Using Symbolic Execution
+
+Authors: Rajdeep Mukherjee, Saurabh Joshi, Daniel Kroening, John O'Leary and Tom Melham
+============================================================================
+                            REVIEWER #1
+============================================================================
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+
+                                 Overall: 2
+                                 Novelty: 4
+                              Usefulness: 4
+              Writing and figure quality: 4
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+This paper uses symbolic exection for hw/sw co-verification. The paper
+addresses a relevant problem and it provides a convincing solution by verifying
+scenarios of interleaved software traces and hardware traces.
+
+The paper mentions already the limitation of s sequential single-threaded
+model. I think this limitation is already relevant for the presented UART
+example. In general, a UART has multiple clocks: the clock driving the UART
+register interface, the clock driving the UART IP logic, and the clock
+associated with the UART transmission. It seems that the assumption is that the
+software trace and the hardware trace both "run" on the same UART register
+interface clock. So the hw/sw co-verification only covers the hardware/software
+interaction on the register interface. It would be good if the approach would
+cover cases in which the clock representing the single-threaded model can be a
+multiple of both the software clock and hardware clock. This would greatly
+enhance applicability of the approach. I suggest to clarify (or add) this to
+the paper.
+
+Another suggestion is to investigate the leverage of SystemC as hardware
+description language even at RTL. This avoids the need to use a software
+netlist at a gate-level description.
+
+The results show that the presented approach is able to identify issues in
+hardware/software interactions. It would be very interesting if it is possible
+to apply/scale up this approach to industrial use cases.
+
+============================================================================
+                            REVIEWER #2
+============================================================================
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+
+                                 Overall: 1
+                                 Novelty: 2
+                              Usefulness: 2
+              Writing and figure quality: 3
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+The authors displayed a methodology for mining Scenario/Transaction pairs from
+a hardware/software co-verification model. The core of the proposed
+verification process is a co-verification model which describes the
+interactions, namely the events exchanged among hardware and software
+components.
+The paper shows two different strategies to define a hardware/software
+co-verification model. The first strategy relies upon the translation of a
+Verilog RTL hardware component description into one functionally equivalent
+clock-cycle accurate description in C language. Afterwards, the C description
+of the hardware component and the firmware code, which is written in C as well,
+are combined. In the second strategy, the co-verification model is defined by
+separately using the state single assignment graph of the firmware, and the
+netlist of the hardware component. In this model, hardware and software
+components are maintained clearly separated. A bounded verification procedure
+is performed in both strategies. In the first one, the firmware performs a
+fixed number of loops. In the second one, the verification procedure is stopped
+after unwinding the k depth state from the initial one.
+
+COMMENTS:
+In the path-based approach the clock signal of the co-verification model is
+updated by the firmware only when read/write statements are performed in a
+memory-mapped register. On the contrary, when other firmware’s statements are
+simulated the clock is not advanced. In the proposed approach, I think the
+firmware operates exactly as a testbench which writes and reads values to/from
+a hardware component only when they can be correctly managed.
+
+Algorithm 1 shows a procedure to perform symbolic simulation of a
+hardware/software model under a defined scenario that tightens the feasible
+execution paths of the model. Should not a scenario be a part of the result
+(and not just a status) as reported in the title of the paper?
+
+Assumptions and assertions apply a same proposition p over the variables of the
+model. Why assumptions and properties cannot predicate over different variables
+of the model? For instance, assuming a set of restrictions R on the model, then
+it is guaranteed that an assertion A is always satisfied. Contract based design
+defines this verification approach.
+
+The most critical issue of symbolic simulation is the path explosion problem.
+This issue is not faced in Algorithm 1 except for the execution paths not
+meeting the user-defined scenario. Furthermore, this issue can be very critical
+since a hardware component very easily does not evolve its state when no proper
+input value is provided. For instance, let’s suppose the interrupt register
+irq gets a symbolic value at every loop of the firmware in Figure 1.  When the
+condition statement involving irq is simulated, two symbolic states are
+generated. The state running over the else branch does not change the state  of
+the model (only idle statements are performed). However, it will make
+Algorithm 1 generate again the same pair of symbolic states previously
+generated at the next loop of the firmware and double the number of symbolic
+states.
+
+I think that the experimental result chapter should show the benefits of the
+second optimization of Algorithm 1. The Z3 solver lets push and pop constraints
+to/from a model without reinserting an entire set of constraints. This
+constraint solver may make the second optimization unnecessary.
+
+The authors defined a producer-consumer interaction pattern as: the firmware
+writes on memory locations V, the hardware writes on memory locations V’,
+and V and V’ are disjoined. Moreover, the firmware has to read the value from
+V’ and the hardware from V. I think this definition is excessively
+restrictive.
+For instance, two components can implement a producer-consumer pattern by
+writing in some shared memory locations but in different time intervals.
+
+I found the usage of the function next_timeframe() not clearly explained in
+Chapter 5 (co-verification property). The next_timeframe() is presented as a
+primitive to update the clock signal of the hardware/software model. In an
+assertion based verification flow the properties’ checkers/monitors are
+updated by proving the new current value of the monitored variables at each
+clock cycle. In the proposed approach, the monitors seem to influence the clock
+signal of the hardware/software model.
+
+Moreover, I did not clearly understand how properties are applied in your
+co-verification model. Are they external monitors as reported in Figure 9? Are
+they integrated in the loop of the firmware?
+
+Experimental results compare the two approaches proposed by the authors, but no
+comparison with state-of-the-art technique is reported.
+
+MINOR OBSERVATIONS:
+- The constraints on the outgoing edges of the state s4 in Figure 2 should be:
+  “status = 0x0C”; “status != 0x0C”.
+- The monitor of Figure 9 should use the function inb instead of outb to read a
+memory mapped register.
+- The function “wb_read“ is not reported in Figure 1.
+- “Discussion” paragraphs in Section 6 do not discuss the experimental
+results, but they just report the content of the tables. Probably the title of
+these paragraphs should be changed.
+
+============================================================================
+                            REVIEWER #3
+============================================================================
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+
+                                 Overall: 2
+                                 Novelty: 3
+                              Usefulness: 3
+              Writing and figure quality: 3
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+This paper proposes 2 methods in formal verification of firmware-to-hardware
+interfaces. Software firmware is assumed at TLM level, whereas the hardware
+level is RTL. The 2 methods, namely HW-CBMC and CoVerif, are proposed,
+described, and then compared against each other in an evaluation of a UART and
+a SoC design model. While both successfully verify several properties, the
+CoVerif method is about 5 times as fast.
+
+The article is written in reasonable English and reasonably organized. Few
+typos remain, e.g. p1c2 "call as" should be "call a" or "refer to as", p2c2
+"functions which invokeS", p2c2 "Figure 1" should be capitalized, and last
+sentence probably misses the word "models" after "codesign".
+
+The reading flow is not very smooth. Section 5 starts with a paragraph that
+could start a separate new paper. The same "bumpy flow" repeats then in Section
+6 with the paragraph right before 6.1.
+
+The strength of the paper is the proposal and evaluation of two formal methods.
+It is not clear, however, if both are new. The abstract suggests that HW-CBMC
+is existing method to which the new CoVerif is compared, but both are described
+as presumably new Approach 1 and Approach 2. A clarification on what is
+actually newly claimed in this paper is needed.
+
+A good point is the clear statement of the limitations (section 7) of the
+approach. The restriction to producer-consumer style models (as opposed to
+models with unstructured parallelism) is pretty serious, but honestly stated
+and thus clear. It's a hard topic, fair to focus on a subset of the problem.
+
+It is not clear to this reviewer why SLDLs like SystemC are not used for the
+model description. Why the need to create the next_timeframe() primitive, when
+SLDL have proper wait() or next_trigger() functionality and are IEEE standard.
+
+Related work is described very shortly, somewhat surprising for a 10-page
+paper.
+
+============================================================================
+                            REVIEWER #4
+============================================================================
+
+
+---------------------------------------------------------------------------
+Reviewer's Scores
+---------------------------------------------------------------------------
+
+                                 Overall: 2
+                                 Novelty: 4
+                              Usefulness: 4
+              Writing and figure quality: 2
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+This paper addresses the formal verification of Hw-Sw co-design. Two approaches
+are discussed: (1) the monolithic approach and (2) the path-based
+co-verificaiton.
+
+I believe the idea of the paper is interesting, more specifically I think there
+is a need for the formal verification for Hw and Fw (FW acronym should be
+explained when used first time in the paper).
+However, the authors should clarify what is the specific contribution of the
+paper. While stating several times that two approaches are presented, only the
+path-based co-verification semas to be new in this paper. And a few times, this
+is even acknowledged by the authors. Moreover, according to the tile of the
+paper, the step 5 of the path-based approach is the core contribution of the
+paper. If this is the case, the conclusion and the introduction should be
+reviewed in order to clarify the exact contribution of the paper.
+
+The hardware is considered at post RTL level, this reduce the scalability of
+the approach. It is mentioned that the path-based approach is more callable
+than the monolithic one. However, it is not clear for me what is the maximal
+complexity supported for the Hw and Sw components.
+
+
+--
